@@ -1,0 +1,174 @@
+import os
+import re
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# Load model and tokenizer
+model_path = "..."  # Replace with your model path
+device_gpu = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device_cpu = torch.device("cpu")
+
+# Load tokenizer
+tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
+tokenizer.pad_token = tokenizer.eos_token  # Set pad_token as eos_token
+
+# Load model to GPU
+model = AutoModelForCausalLM.from_pretrained(model_path).to(device_gpu)
+
+# Regular expression to match contracts
+contract_pattern = r'contract\s+(\w+)\s*{([^}]+)}|interface\s+(\w+)\s*{([^}]+)}|library\s+(\w+)\s*{([^}]+)}|abstract\s+contract\s+(\w+)\s*{([^}]+)}'
+
+
+def split_contracts_from_file(file_path):
+    """
+    Extract contract code from a Solidity file and split into individual contracts
+    """
+    with open(file_path, 'r', encoding='utf-8') as file:
+        solidity_code = file.read()
+
+    # Use regular expression to match contract, interface, library structures
+    contracts = re.findall(contract_pattern, solidity_code)
+
+    # Extract each contract's name and content
+    split_contracts = []
+    for contract in contracts:
+        contract_name = None
+        contract_code = None
+
+        # Match each possible contract structure
+        if contract[0]:  # contract
+            contract_name = contract[0]
+            contract_code = contract[1]
+        elif contract[2]:  # interface
+            contract_name = contract[2]
+            contract_code = contract[3]
+        elif contract[4]:  # library
+            contract_name = contract[4]
+            contract_code = contract[5]
+        elif contract[6]:  # abstract contract
+            contract_name = contract[6]
+            contract_code = contract[7]
+
+        split_contracts.append({'contract_name': contract_name, 'contract_code': contract_code.strip()})
+
+    return split_contracts
+
+
+def save_contracts_to_files(contracts, output_dir):
+    """
+    Save the split contract code into files
+    """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    for contract in contracts:
+        file_name = f"{contract['contract_name']}.sol"
+        file_path = os.path.join(output_dir, file_name)
+
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(f"// {contract['contract_name']} contract\n")
+            file.write(contract['contract_code'])
+
+    print(f"Contracts have been saved to {output_dir}")
+
+
+# Define Solidity file parsing and analysis function
+def analyze_solidity_file(file_path, model, tokenizer, device_gpu, device_cpu, max_new_tokens=512, temperature=0.7):
+    """
+    Perform vulnerability analysis on the given Solidity file
+    Args:
+        file_path (str): Local Solidity file path
+        model: Loaded model
+        tokenizer: Loaded tokenizer
+        device_gpu: Use GPU for inference
+        device_cpu: Use CPU for data processing
+        max_new_tokens (int): Maximum number of new tokens to generate
+        temperature (float): Controls randomness of generation
+    Returns:
+        str: Analysis results
+    """
+    # Split all contracts in the file
+    contracts = split_contracts_from_file(file_path)
+
+    # Analyze each contract
+    analysis_results = []
+    for idx, contract in enumerate(contracts):
+        contract_code = contract['contract_code']
+        prompt = (f"Please analyze the vulnerabilities in the following Solidity contract and return the list of SWC codes. "
+                  f"The detection scope includes:\n"
+                  f"'SWC-101':'Integer_Overflow_and_Underflow', "
+                  f"'SWC-105':'Unprotected_Ether_Withdrawal', "
+                  f"'SWC-107':'Reentrancy', "
+                  f"'SWC-110':'Assert_Violation', "
+                  f"'SWC-121':'Missing_Protection_Against_Signature_Replay_Attacks', "
+                  f"'SWC-124':'Write_to_Arbitrary_Storage_Location', "
+                  f"'SWC-128':'DoS_with_Block_Gas_Limit_Gas'.\n"
+                  f"Solidity contract code: {contract_code}\n\n")
+
+        # Process input data on CPU
+        inputs = tokenizer(
+            prompt,
+            return_tensors="pt",
+            truncation=True,
+            max_length=1024,  # Increase input length
+            padding=True
+        ).to(device_cpu)  # Process input on CPU
+
+        # Move inputs to GPU for inference
+        inputs = {key: value.to(device_gpu) for key, value in inputs.items()}
+
+        # Generate analysis result with model (on GPU)
+        outputs = model.generate(
+            input_ids=inputs["input_ids"],
+            attention_mask=inputs["attention_mask"],  # Explicitly pass attention_mask
+            max_new_tokens=256,  # Control output length
+            temperature=temperature,
+            top_k=50,
+            top_p=0.95,
+            do_sample=True
+        )
+
+        # Decode and save analysis result
+        result = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        analysis_results.append(f"Contract {idx + 1} Analysis:\n{result}\n\n")
+
+    # Combine all contract analysis results
+    return "\n".join(analysis_results)
+
+
+# Batch process all .sol files and save analysis results
+def process_and_save_analysis(input_folder, output_folder, model, tokenizer, device_gpu, device_cpu):
+    """
+    Batch process Solidity files and save analysis results
+    Args:
+        input_folder (str): Folder path containing .sol files
+        output_folder (str): Folder path to save analysis results
+    """
+    # Ensure output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    # Iterate over all .sol files in the folder
+    for filename in os.listdir(input_folder):
+        if filename.endswith(".sol"):
+            file_path = os.path.join(input_folder, filename)
+            print(f"Analyzing file: {file_path}")
+            try:
+                # Analyze Solidity file
+                analysis_result = analyze_solidity_file(file_path, model, tokenizer, device_gpu, device_cpu)
+
+                # Save analysis result to corresponding file
+                result_file_path = os.path.join(output_folder, f"{filename}_zkp_analysis.txt")
+                with open(result_file_path, "w", encoding="utf-8") as result_file:
+                    result_file.write(analysis_result)
+                print(f"Analysis result saved to: {result_file_path}")
+            except Exception as e:
+                print(f"Error during analysis of {filename}: {e}")
+
+
+# Input and output folder paths
+input_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../datasets/smartbugs_curated'))
+output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../result/ZKP_LLAMA'))
+
+# Execute batch processing
+process_and_save_analysis(input_folder, output_folder, model, tokenizer, device_gpu, device_cpu)
