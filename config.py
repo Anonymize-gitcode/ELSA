@@ -10,12 +10,9 @@ DATASET_CONFIG = {
     "SolidiFI-benchmark": {
         "swc_list": ["SWC-101", "SWC-104", "SWC-105", "SWC-107", "SWC-115", "SWC-116", "SWC-136"],
         "tools": ["manticore", "mythril", "securify", "oyente", "slither", "smartcheck"]
-<<<<<<< HEAD
     },
     "DAppSCAN": {
         "swc_list": ["SWC-135", "SWC-108", "SWC-129", "SWC-123", "SWC-100", "SWC-119", "SWC-102", "SWC-103", "SWC-128", "SWC-104", "SWC-126", "SWC-101", "SWC-118", "SWC-105", "SWC-107", "SWC-114", "SWC-120", "SWC-111", "SWC-116", "SWC-113"],
         "tools": ["mythril", "slither", "smartcheck"]
-=======
->>>>>>> 409cc92d3a60da6e3ac62e58e2a0bad87f9c6de7
     }
 }
