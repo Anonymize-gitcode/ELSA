@@ -8,14 +8,14 @@ import time
 # Configure GPT-3.5 API key
 openai.api_key = ('...')  # Replace with your GPT API key
 
-# Read honeybadger results from the specified folder and try to parse as text or JSON
-def clean_honeybadger_output(honeybadger_content):
-    honeybadger_content = re.sub(r'//.*', '', honeybadger_content)
-    honeybadger_content = re.sub(r'/\*.*?\*/', '', honeybadger_content, flags=re.DOTALL)
-    honeybadger_content = re.sub(r'\n\s*\n', '\n', honeybadger_content)
-    return honeybadger_content
+# Read mythril results from the specified folder and try to parse as text or JSON
+def clean_mythril_output(mythril_content):
+    mythril_content = re.sub(r'//.*', '', mythril_content)
+    mythril_content = re.sub(r'/\*.*?\*/', '', mythril_content, flags=re.DOTALL)
+    mythril_content = re.sub(r'\n\s*\n', '\n', mythril_content)
+    return mythril_content
 
-def read_honeybadger_result(result_file_path):
+def read_mythril_result(result_file_path):
     result_file_path = os.path.normpath(result_file_path)
 
     if not os.path.exists(result_file_path):
@@ -29,11 +29,11 @@ def read_honeybadger_result(result_file_path):
             return None
 
         try:
-            honeybadger_output = json.loads(content)
-            return honeybadger_output
+            mythril_output = json.loads(content)
+            return mythril_output
         except json.JSONDecodeError:
             print(f"File {result_file_path} is not a valid JSON file, returning cleaned text content.")
-            return clean_honeybadger_output(content)
+            return clean_mythril_output(content)
 
 def clean_solidity_comments(solidity_content):
     solidity_content = re.sub(r'//.*', '', solidity_content)
@@ -75,10 +75,10 @@ def send_full_text_to_gpt(prompt, model="gpt-3.5-turbo"):
         return None
 
 # Use GPT for common vulnerability analysis
-def analyze_common_vulnerabilities_with_gpt(honeybadger_output, solidity_content, structure_hint, sol_file_name):
+def analyze_common_vulnerabilities_with_gpt(mythril_output, solidity_content, structure_hint, sol_file_name):
     swc_codes = set()
 
-    honeybadger_output_str = json.dumps(honeybadger_output, indent=2) if isinstance(honeybadger_output, dict) else honeybadger_output
+    mythril_output_str = json.dumps(mythril_output, indent=2) if isinstance(mythril_output, dict) else mythril_output
 
     zkp_model_content = read_zkp_analysis_file(sol_file_name)
     solidity_response = set()
@@ -91,7 +91,7 @@ def analyze_common_vulnerabilities_with_gpt(honeybadger_output, solidity_content
             f"Please optimize the following Solidity code by removing redundant parts while retaining all functions and code segments related to vulnerabilities to ensure vulnerability analysis is not affected:\n"
             f"Optimization requirements:\n"
             f"1. Remove unused variables, functions, and irrelevant code to avoid affecting vulnerability analysis.\n"
-            f"2. Retain all functions potentially related to vulnerabilities, especially those flagged by honeybadger or other tools.\n"
+            f"2. Retain all functions potentially related to vulnerabilities, especially those flagged by mythril or other tools.\n"
             f"3. Ensure that the core functionality of each function is preserved. The optimized code should retain its functionality and vulnerability analysis consistency.\n\n"
             f"Solidity file content:\n{solidity_content}\n\n"
         )
@@ -127,23 +127,36 @@ def analyze_common_vulnerabilities_with_gpt(honeybadger_output, solidity_content
         print("No heuristic summary obtained.")
 
     prompt_for_analysis = (
-        f"Please analyze the vulnerabilities in the contract from the following Solidity file content and honeybadger output, using the heuristic prompts.\n"
+        f"Please analyze the vulnerabilities in the contract from the following Solidity file content and mythril output, using the heuristic prompts.\n"
         f"Check each function carefully, ensuring to analyze its functionality and potential risks. Return a precise list of SWC codes without any fix suggestions or scope descriptions.\n\n"
         f"Detection includes the following vulnerabilities:\n"
-        f"SWC-101: overflow_underflow\n"
-        f"SWC-104: unhandled_exceptions\n"
-        f"SWC-105: unchecked_send\n"
-        f"SWC-107: reentrancy\n"
-        f"SWC-116: timestamp_dependency\n"
-        f"SWC-115: tx_origin_dependency\n"
-        f"SWC-136: time of day dependency\n"
+        f"SWC-135: Code With No Effects\n"
+        f"SWC-108: State Variable Default Visibility\n"
+        f"SWC-129: Unchecked Call Return Value\n"
+        f"SWC-123: Requirement Violation\n"
+        f"SWC-100: Uninitialized State Variables\n"
+        f"SWC-119: Shadowing State Variables\n"
+        f"SWC-102: Unencrypted Private Data On-Chain\n"
+        f"SWC-103: Ether Transfer to Unknown Address\n"
+        f"SWC-128: DoS With Block Gas Limit\n"
+        f"SWC-104: Outdated Compiler Version\n"
+        f"SWC-126: Insufficient Gas Griefing\n"
+        f"SWC-101: Delegatecall to Untrusted Contract\n"
+        f"SWC-118: Incorrect Constructor Name\n"
+        f"SWC-105: Unchecked Low-Level Calls\n"
+        f"SWC-107: DoS with (Unexpected) Revert\n"
+        f"SWC-114: Transaction Order Dependence\n"
+        f"SWC-120: Authorization through tx.origin\n"
+        f"SWC-111: Use of Deprecated Solidity Functions\n"
+        f"SWC-116: Block values as a proxy for time\n"
+        f"SWC-113: DoS with Block Gas Limit\n"
 
         f"Analysis process:\n"
         f"1. Check each function, identify potential vulnerabilities, especially those related to permission control, arithmetic operations, and external calls.\n"
         f"2. Ensure accurate SWC codes and specify the vulnerable function or code segment.\n\n"
 
         f"Solidity file content:\n{solidity_response}\n\n"
-        f"honeybadger output:\n{honeybadger_output_str}\n\n"
+        f"mythril output:\n{mythril_output_str}\n\n"
         f"Heuristic prompts:\n{inspiration_response}\n\n"
     )
 
@@ -178,25 +191,38 @@ def read_key_feature_file(sol_file_name):
         return ""
 
 # Analyze symbolic execution results of smart contracts
-def simulate_symbolic_execution_with_gpt(honeybadger_output, solidity_content, vulnerabilities_found, sol_file_name,solidity_response):
+def simulate_symbolic_execution_with_gpt(mythril_output, solidity_content, vulnerabilities_found, sol_file_name,solidity_response):
     swc_codes = set()
-    honeybadger_output_str = json.dumps(honeybadger_output, indent=2) if isinstance(honeybadger_output, dict) else honeybadger_output
+    mythril_output_str = json.dumps(mythril_output, indent=2) if isinstance(mythril_output, dict) else mythril_output
 
     prompt = (
-        f"Based on symbolic execution logic, combined with the following Solidity code and honeybadger output and known vulnerabilities, "
+        f"Based on symbolic execution logic, combined with the following Solidity code and mythril output and known vulnerabilities, "
         f"simulate the execution paths of the smart contract under different inputs, check for potential execution risks, and verify the authenticity of discovered vulnerabilities. Remove any false positives.\n"
         f"Check each function carefully. Return a precise list of confirmed SWC codes. Do not provide fix suggestions or detection scopes.\n\n"
         f"Known vulnerabilities: {','.join(vulnerabilities_found)}\n"
         f"Detection includes:\n"
-        f"SWC-101: overflow_underflow\n"
-        f"SWC-104: unhandled_exceptions\n"
-        f"SWC-105: unchecked_send\n"
-        f"SWC-107: reentrancy\n"
-        f"SWC-116: timestamp_dependency\n"
-        f"SWC-115: tx_origin_dependency\n"
-        f"SWC-136: time of day dependency\n"
+        f"SWC-135: Code With No Effects\n"
+        f"SWC-108: State Variable Default Visibility\n"
+        f"SWC-129: Unchecked Call Return Value\n"
+        f"SWC-123: Requirement Violation\n"
+        f"SWC-100: Uninitialized State Variables\n"
+        f"SWC-119: Shadowing State Variables\n"
+        f"SWC-102: Unencrypted Private Data On-Chain\n"
+        f"SWC-103: Ether Transfer to Unknown Address\n"
+        f"SWC-128: DoS With Block Gas Limit\n"
+        f"SWC-104: Outdated Compiler Version\n"
+        f"SWC-126: Insufficient Gas Griefing\n"
+        f"SWC-101: Delegatecall to Untrusted Contract\n"
+        f"SWC-118: Incorrect Constructor Name\n"
+        f"SWC-105: Unchecked Low-Level Calls\n"
+        f"SWC-107: DoS with (Unexpected) Revert\n"
+        f"SWC-114: Transaction Order Dependence\n"
+        f"SWC-120: Authorization through tx.origin\n"
+        f"SWC-111: Use of Deprecated Solidity Functions\n"
+        f"SWC-116: Block values as a proxy for time\n"
+        f"SWC-113: DoS with Block Gas Limit\n"
         f"Solidity file content:\n{solidity_response}\n"
-        f"honeybadger output:\n{honeybadger_output_str}\n"
+        f"mythril output:\n{mythril_output_str}\n"
     )
 
     gpt_response = send_full_text_to_gpt(prompt)
@@ -207,16 +233,16 @@ def simulate_symbolic_execution_with_gpt(honeybadger_output, solidity_content, v
 
     return set([f"SWC-{code}" for code in swc_codes])
 
-def analyze_with_gpt_in_three_rounds(honeybadger_output, solidity_content, structure_hint, sol_file_name):
+def analyze_with_gpt_in_three_rounds(mythril_output, solidity_content, structure_hint, sol_file_name):
     round_results = []
     for _ in range(3):
-        vulnerabilities_result, solidity_response = analyze_common_vulnerabilities_with_gpt(honeybadger_output, solidity_content, structure_hint, sol_file_name)
-        execution_result = simulate_symbolic_execution_with_gpt(honeybadger_output, solidity_content, vulnerabilities_result, sol_file_name,solidity_response)
+        vulnerabilities_result, solidity_response = analyze_common_vulnerabilities_with_gpt(mythril_output, solidity_content, structure_hint, sol_file_name)
+        execution_result = simulate_symbolic_execution_with_gpt(mythril_output, solidity_content, vulnerabilities_result, sol_file_name,solidity_response)
         combined_result = execution_result
         round_results.append(combined_result)
     return round_results
 
-def analyze_with_gpt_until_intersection(honeybadger_output, solidity_content, structure_hint, sol_file_name, max_attempts=5):
+def analyze_with_gpt_until_intersection(mythril_output, solidity_content, structure_hint, sol_file_name, max_attempts=5):
     attempt = 0
     all_swc_codes = []
     intersection_result = None
@@ -224,7 +250,7 @@ def analyze_with_gpt_until_intersection(honeybadger_output, solidity_content, st
     while attempt < max_attempts:
         attempt += 1
         print(f"Round {attempt} analysis")
-        current_round_results = analyze_with_gpt_in_three_rounds(honeybadger_output, solidity_content, structure_hint, sol_file_name)
+        current_round_results = analyze_with_gpt_in_three_rounds(mythril_output, solidity_content, structure_hint, sol_file_name)
         for result_set in current_round_results:
             all_swc_codes.extend(result_set)
         current_intersection = set.intersection(*current_round_results)
@@ -261,7 +287,7 @@ def save_analysis_result(contract_name, swc_codes, output_dir):
 
     print(f"Analysis result saved to: {result_file_path}")
 
-def analyze_honeybadger_results_in_directory(sol_base_dir, honeybadger_base_dir, solc_analysis_dir, result_dir):
+def analyze_mythril_results_in_directory(sol_base_dir, mythril_base_dir, solc_analysis_dir, result_dir):
     if not os.path.exists(sol_base_dir):
         print(f"Specified directory does not exist: {sol_base_dir}")
         return
@@ -283,7 +309,7 @@ def analyze_honeybadger_results_in_directory(sol_base_dir, honeybadger_base_dir,
                     continue
 
                 corresponding_json_path = os.path.join(
-                    honeybadger_base_dir,
+                    mythril_base_dir,
                     os.path.relpath(root, sol_base_dir),
                     f"{sol_file_name}.sol.txt"
                 )
@@ -292,10 +318,10 @@ def analyze_honeybadger_results_in_directory(sol_base_dir, honeybadger_base_dir,
                 print(f"Analyzing contract: {sol_file_name}")
                 print(f"Analyzing file path: {corresponding_json_path}")
 
-                honeybadger_output = read_honeybadger_result(corresponding_json_path)
+                mythril_output = read_mythril_result(corresponding_json_path)
 
-                if honeybadger_output is None:
-                    print(f"Skipping contract {sol_file_name}, honeybadger result could not be read.")
+                if mythril_output is None:
+                    print(f"Skipping contract {sol_file_name}, mythril result could not be read.")
                     continue
 
                 structure_hint = analyze_contract_structure_from_txt(sol_file_name, solc_analysis_dir)
@@ -308,7 +334,7 @@ def analyze_honeybadger_results_in_directory(sol_base_dir, honeybadger_base_dir,
                 with open(sol_file_path, 'r', encoding='utf-8') as sol_file:
                     solidity_content = clean_solidity_comments(sol_file.read())
 
-                swc_codes = analyze_with_gpt_until_intersection(honeybadger_output, solidity_content, structure_hint, sol_file_name)
+                swc_codes = analyze_with_gpt_until_intersection(mythril_output, solidity_content, structure_hint, sol_file_name)
 
                 elapsed_time = time.time() - start_time
                 total_time += elapsed_time
@@ -323,20 +349,12 @@ def analyze_honeybadger_results_in_directory(sol_base_dir, honeybadger_base_dir,
     print(f"Total analysis time for all files: {total_time:.2f} seconds")
 
 def main():
-<<<<<<< HEAD
     sol_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../datasets/DAppSCAN'))
     mythril_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/mythril_tool_analysis_filter'))
     solc_analysis_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/solc-process'))
     result_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/mythril_CoT_gpt_3_5_turbo'))
     analyze_mythril_results_in_directory(sol_base_dir, mythril_base_dir, solc_analysis_dir, result_dir)
 
-=======
-    sol_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../datasets/SolidiFI-benchmark'))
-    honeybadger_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/honeybadger_tool_analysis_filter'))
-    solc_analysis_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/solc-process'))
-    result_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/honeybadger_CoT_gpt_3_5_turbo'))
-    analyze_honeybadger_results_in_directory(sol_base_dir, honeybadger_base_dir, solc_analysis_dir, result_dir)
->>>>>>> 409cc92d3a60da6e3ac62e58e2a0bad87f9c6de7
 
 if __name__ == "__main__":
     main()
