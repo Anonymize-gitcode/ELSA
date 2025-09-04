@@ -5,15 +5,8 @@ ELSA (Ensemble LLM-assisted Static Analysis) is an approach that integrates the 
 
 To run the tool, please follow these steps:
 
-1\. Install \*\*Python 3.10+\*\* and the necessary packages (e.g., `solc`).
+1\. Install `Python 3.10+` and the necessary packages (e.g., `solc`).
 
-2\. Configure the required \*\*API keys\*\*, set the correct location for `solc`, and specify the installation location for the \*\*static analysis techniques\*\*.
+2\. Configure the required `API keys`, set the correct location for `solc`, and specify the installation location for the `static analysis techniques`.
 
-3\. Run the tool using the following command:
-
-&nbsp;  ```bash
-
-&nbsp;  python execution.py
-
-=======
->>>>>>> 409cc92d3a60da6e3ac62e58e2a0bad87f9c6de7
+3\. Run the tool using the following command: `python execution.py`
