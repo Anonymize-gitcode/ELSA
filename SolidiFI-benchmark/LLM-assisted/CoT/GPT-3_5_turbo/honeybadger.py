@@ -323,12 +323,20 @@ def analyze_honeybadger_results_in_directory(sol_base_dir, honeybadger_base_dir,
     print(f"Total analysis time for all files: {total_time:.2f} seconds")
 
 def main():
+<<<<<<< HEAD
     sol_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../datasets/DAppSCAN'))
     mythril_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/mythril_tool_analysis_filter'))
     solc_analysis_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/solc-process'))
     result_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/mythril_CoT_gpt_3_5_turbo'))
     analyze_mythril_results_in_directory(sol_base_dir, mythril_base_dir, solc_analysis_dir, result_dir)
 
+=======
+    sol_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../datasets/SolidiFI-benchmark'))
+    honeybadger_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/honeybadger_tool_analysis_filter'))
+    solc_analysis_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/solc-process'))
+    result_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/honeybadger_CoT_gpt_3_5_turbo'))
+    analyze_honeybadger_results_in_directory(sol_base_dir, honeybadger_base_dir, solc_analysis_dir, result_dir)
+>>>>>>> 409cc92d3a60da6e3ac62e58e2a0bad87f9c6de7
 
 if __name__ == "__main__":
     main()
