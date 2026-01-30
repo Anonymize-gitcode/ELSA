@@ -91,7 +91,7 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, st
             f"Please optimize the following Solidity code by removing redundant parts while retaining all functions and code segments related to vulnerabilities to ensure vulnerability analysis is not affected:\n"
             f"Optimization requirements:\n"
             f"1. Remove unused variables, functions, and irrelevant code to avoid affecting vulnerability analysis.\n"
-            f"2. Retain all functions potentially related to vulnerabilities, especially those flagged by slither or other tools.\n"
+            f"2. Retain all functions potentially related to vulnerabilities, especially those flagged by slither or other techniques.\n"
             f"3. Ensure that the core functionality of each function is preserved. The optimized code should retain its functionality and vulnerability analysis consistency.\n\n"
             f"Solidity file content:\n{solidity_content}\n\n"
         )
@@ -105,16 +105,11 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, st
         solidity_response = solidity_content
 
     prompt_for_inspiration = (
-        f"Based on the following Solidity file content, summarize accurate and effective heuristic prompts to help GPT analyze potential vulnerabilities and risks. "
-        f"Please remove any vulnerability that does not exist in the Solidity file.\n"
-        f"Return format:\n"
-        f"[SWC code]: Line number of the vulnerability: [specific line], brief description.\n"
-        f"Please check each function carefully, especially focus on:\n"
-        f"1. Function control flow and state changes,\n"
-        f"2. Data operations and calls,\n"
-        f"3. Common vulnerabilities such as reentrancy, arithmetic overflow, permission control.\n"
+        f"Based on the following Solidity file content, summarize and validate accurate and effective clues from the three provided hints to guide GPT analysis.\n"
+        f"If a vulnerability does not exist in the Solidity file, please remove it.\n"
+        f"Return the high-risk function name and the associated issue.\n"
         f"Contract structure hints:\n{structure_hint}\n"
-        f"Key feature hints:\n{key_feature_content}\n"
+        f"Potential risk hints:\n{key_feature_content}\n"
         f"Analysis hints:\n{zkp_model_content}\n"
         f"Solidity file content:\n{solidity_response}\n\n"
     )

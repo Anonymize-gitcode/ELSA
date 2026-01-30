@@ -1,0 +1,28 @@
+# ELSA: Ensemble LLM-assisted Static Analysis
+# Python Package Requirements
+
+# Core dependencies
+python>=3.10
+
+# LLM Integration
+openai==0.28.0
+
+# Solidity Compiler
+py-solc-x>=1.1.0
+
+# Static Analysis Techniques
+slither-analyzer>=0.9.0
+mythril>=0.23.0
+
+# Optional: Additional Analysis Techniques
+# Uncomment and install as needed for specific datasets
+
+# manticore>=0.3.6
+# web3>=5.31.0
+
+# Note: Some techniques require manual installation
+# - SmartCheck: https://github.com/smartdec/smartcheck
+# - Oyente: https://github.com/enzymefinance/oyente
+# - Securify: https://github.com/eth-sri/securify2
+# - Osiris: Manual installation required
+# - Honeybadger: Manual installation required

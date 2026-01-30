@@ -107,9 +107,9 @@ def analyze_common_vulnerabilities_with_gpt(oyente_output, solidity_content, str
         solidity_response = solidity_content
 
     prompt_for_inspiration = (
-        f"Based on the following Solidity content, summarize accurate and effective prompts from the three hint sources below to inspire GPT analysis. "
+        f"Based on the following Solidity file content, summarize and validate accurate and effective clues from the three provided hints to guide GPT analysis.\n"
         f"If a vulnerability does not exist in the Solidity file, please remove it.\n"
-        f"Return the names of high-risk functions and issues.\n"
+        f"Return the high-risk function name and the associated issue.\n"
         f"Contract structure hints:\n{structure_hint}\n"
         f"Potential risk hints:\n{key_feature_content}\n"
         f"Analysis hints:\n{zkp_model_content}\n"
@@ -191,7 +191,7 @@ def simulate_symbolic_execution_with_gpt(oyente_output, solidity_content, vulner
     print(vulnerabilities_found)
 
     prompt = (
-        f"Based on the logic of symbolic execution tools, analyze the following Solidity code and previously found vulnerabilities. "
+        f"Based on the logic of symbolic execution techniques, analyze the following Solidity code and previously found vulnerabilities. "
         f"Return the highest-risk vulnerability type. Simulate different input paths of the smart contract, check for execution risks, "
         f"and verify the actual existence of previously found vulnerabilities. Remove any non-existent ones.\n"
         f"Previously identified vulnerabilities: {','.join(vulnerabilities_found)}\n"

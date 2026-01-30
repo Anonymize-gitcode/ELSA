@@ -91,7 +91,7 @@ def analyze_common_vulnerabilities_with_gpt(mythril_output, solidity_content, st
             f"Please optimize the following Solidity code by removing redundant parts while retaining all functions and code segments related to vulnerabilities to ensure vulnerability analysis is not affected:\n"
             f"Optimization requirements:\n"
             f"1. Remove unused variables, functions, and irrelevant code to avoid affecting vulnerability analysis.\n"
-            f"2. Retain all functions potentially related to vulnerabilities, especially those flagged by mythril or other tools.\n"
+            f"2. Retain all functions potentially related to vulnerabilities, especially those flagged by mythril or other techniques.\n"
             f"3. Ensure that the core functionality of each function is preserved. The optimized code should retain its functionality and vulnerability analysis consistency.\n\n"
             f"Solidity file content:\n{solidity_content}\n\n"
         )

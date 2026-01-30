@@ -45,7 +45,7 @@ def get_sol_version(file_path):
 
 def install_and_use_solc_version(version):
     """
-    Install and switch to the required solc version using solc-select tool.
+    Install and switch to the required solc version using solc-select utility.
     """
     print(version)
     try:

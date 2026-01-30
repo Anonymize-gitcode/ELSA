@@ -24,7 +24,7 @@ def process_line(line):
     if "Running, please wait" in line:
         return None
 
-    if "An analysis tool" in line:
+    if "An analysis technique" in line:
         return None
 
     # Replace paths and line numbers, e.g. ../../file.sol#123 -> line 123

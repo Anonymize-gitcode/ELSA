@@ -26,8 +26,8 @@ def read_swc_codes(file_path):
 
             # Key fix: Match normal format and abnormal format (SWC-SWC-XXX)
             # Regular expression explanation:
-            # - (SWC-){1,2} → Match 1 or 2 occurrences of "SWC-" (handles both normal and abnormal formats)
-            # - (\d+) → Match the numeric part
+            # - (SWC-){1,2} â?Match 1 or 2 occurrences of "SWC-" (handles both normal and abnormal formats)
+            # - (\d+) â?Match the numeric part
             swc_pattern = r'(SWC-){1,2}(\d+)'
             swc_matches = re.findall(swc_pattern, content)
 
@@ -54,7 +54,7 @@ def read_swc_codes(file_path):
 
 
 def get_swc_codes_from_sol(sol_file):
-    """Get vulnerability detection results from three tools for the same contract"""
+    """Get vulnerability detection results from three techniques for the same contract"""
     mythril_result_path = os.path.join(mythril_folder, sol_file.replace('.sol', '_gpt_analysis.txt'))
     slither_result_path = os.path.join(slither_folder, sol_file.replace('.sol', '_gpt_analysis.txt'))
     smartcheck_result_path = os.path.join(smartcheck_folder, sol_file.replace('.sol', '_gpt_analysis.txt'))
@@ -67,20 +67,20 @@ def get_swc_codes_from_sol(sol_file):
 
 
 def select_final_vulnerability(mythril_result, slither_result, smartcheck_result):
-    """Calculate optimal vulnerability based on tool weights"""
-    tool_weights = {
+    """Calculate optimal vulnerability based on technique weights"""
+    technique_weights = {
         'mythril': 0.1,
         'slither': 0.3,
         'smartcheck': 0.1
     }
 
     swc_scores = defaultdict(float)
-    for tool_name, results in zip(
+    for technique_name, results in zip(
             ['mythril', 'slither', 'smartcheck'],
             [mythril_result, slither_result, smartcheck_result]
     ):
         for swc in results:
-            swc_scores[swc] += tool_weights[tool_name]
+            swc_scores[swc] += technique_weights[technique_name]
 
     if swc_scores:
         best_swc = max(swc_scores.items(), key=lambda x: x[1])[0]
@@ -110,7 +110,7 @@ def save_results(sol_file, final_vulnerability, score, tool_results):
         else:
             content.append("Final Result: No clear vulnerability detected after weighted fusion")
 
-        content.append("\n## Tool Detection Details (SWC Vulnerability Codes)")
+        content.append("\n## technique Detection Details (SWC Vulnerability Codes)")
         content.append(
             f"- Mythril (Weight: 0.3): {', '.join(tool_results['mythril']) if tool_results['mythril'] else 'None'}")
         content.append(

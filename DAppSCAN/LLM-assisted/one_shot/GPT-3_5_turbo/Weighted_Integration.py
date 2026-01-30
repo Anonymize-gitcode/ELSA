@@ -25,7 +25,7 @@ def read_swc_codes(file_path):
 
 
 def get_swc_codes_from_sol(sol_file):
-    """Obtain tool detection results"""
+    """Obtain technique detection results"""
     mythril_result_path = os.path.join(mythril_folder, sol_file.replace('.sol', '_gpt_analysis.txt'))
     slither_result_path = os.path.join(slither_folder, sol_file.replace('.sol', '_gpt_analysis.txt'))
     smartcheck_result_path = os.path.join(smartcheck_folder, sol_file.replace('.sol', '_gpt_analysis.txt'))
@@ -39,8 +39,8 @@ def get_swc_codes_from_sol(sol_file):
 
 def select_final_vulnerability(mythril_result, slither_result, smartcheck_result):
     """Select the final vulnerability"""
-    # Define weighted accuracy of tools (combining precision and recall)
-    tool_weights = {
+    # Define weighted accuracy of techniques (combining precision and recall)
+    technique_weights = {
         'mythril': 0.1,  # Consider only precision
         'slither': 0.2,
         'smartcheck': 0.3
@@ -48,13 +48,13 @@ def select_final_vulnerability(mythril_result, slither_result, smartcheck_result
 
     # Count SWC codes to determine the final vulnerability
     swc_count = {}
-    for tool_name, result in zip(['mythril', 'slither', 'smartcheck'],
+    for technique_name, result in zip(['mythril', 'slither', 'smartcheck'],
                                  [mythril_result, slither_result, smartcheck_result]):
         for swc in result:
             if swc not in swc_count:
-                swc_count[swc] = {'count': 0, 'tools': []}
+                swc_count[swc] = {'count': 0, 'techniques': []}
             swc_count[swc]['count'] += 1
-            swc_count[swc]['tools'].append(tool_name)
+            swc_count[swc]['techniques'].append(technique_name)
 
     best_swc = None
     best_score = -1
@@ -62,8 +62,8 @@ def select_final_vulnerability(mythril_result, slither_result, smartcheck_result
     # Iterate through all SWC vulnerabilities and calculate final scores
     for swc, data in swc_count.items():
         score = 0
-        for tool in data['tools']:
-            score += tool_weights[tool]
+        for technique in data['techniques']:
+            score += technique_weights[technique]
 
         # Select the vulnerability with the highest score
         if score > best_score:

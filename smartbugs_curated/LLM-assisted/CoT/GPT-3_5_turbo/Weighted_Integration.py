@@ -30,22 +30,22 @@ def read_swc_codes(file_path):
 
 
 def get_swc_codes_from_sol(sol_file):
-    """Get detection results from all tools"""
+    """Get detection results from all techniques"""
     result = {}
-    for tool, folder in zip(
+    for technique, folder in zip(
             ['mythril', 'slither', 'smartcheck', 'manticore', 'osiris', 'oyente', 'honeybadger'],
             [mythril_folder, slither_folder, smartcheck_folder, manticore_folder, osiris_folder, oyente_folder,
              honeybadger_folder]
     ):
         file_path = os.path.join(folder, sol_file.replace('.sol', '_gpt_analysis.txt'))
-        result[tool] = read_swc_codes(file_path)
+        result[technique] = read_swc_codes(file_path)
     return result
 
 
-def select_final_vulnerability(swc_codes_by_tool):
-    """Select final vulnerability based on tool results"""
-    # Define weighted accuracy for tools (comprehensive precision and recall)
-    tool_weights = {
+def select_final_vulnerability(swc_codes_by_technique):
+    """Select final vulnerability based on technique results"""
+    # Define weighted accuracy for techniques (comprehensive precision and recall)
+    technique_weights = {
         'mythril': 0.1,  # Increase Mythril weight
         'slither': 0.1,  # Keep Slither weight unchanged
         'smartcheck': 0.05,  # Slightly decrease SmartCheck weight
@@ -56,22 +56,22 @@ def select_final_vulnerability(swc_codes_by_tool):
     }
 
     # Count SWC codes to determine final vulnerability
-    swc_count = defaultdict(lambda: {'count': 0, 'tools': []})
+    swc_count = defaultdict(lambda: {'count': 0, 'techniques': []})
 
-    for tool, swcs in swc_codes_by_tool.items():
+    for technique, swcs in swc_codes_by_technique.items():
         for swc in swcs:
             swc_count[swc]['count'] += 1
-            swc_count[swc]['tools'].append(tool)
+            swc_count[swc]['techniques'].append(technique)
 
     # Calculate score for each vulnerability and select the final one
     best_swc = None
     best_score = -1
 
     for swc, data in swc_count.items():
-        score = sum(tool_weights[tool] for tool in data['tools'])
+        score = sum(technique_weights[technique] for technique in data['techniques'])
 
-        # Increase score for consistency: confirmed by multiple tools
-        if data['count'] >= 1:  # At least one tool confirms
+        # Increase score for consistency: confirmed by multiple techniques
+        if data['count'] >= 1:  # At least one technique confirms
             score *= 1.5  # Give higher weight
 
         if score > best_score:
@@ -108,6 +108,6 @@ for sol_file in os.listdir(sol_folder):
             print(f"Result file {output_file} already exists, skipping analysis.")
             continue
 
-        swc_codes_by_tool = get_swc_codes_from_sol(sol_file)
-        final_vulnerability = select_final_vulnerability(swc_codes_by_tool)
+        swc_codes_by_technique = get_swc_codes_from_sol(sol_file)
+        final_vulnerability = select_final_vulnerability(swc_codes_by_technique)
         save_results(sol_file, final_vulnerability)

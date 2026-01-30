@@ -1,7 +1,7 @@
 import os
 import re
 
-# SWC-120: Vulnerability detection tool using tx.origin for authorization
+# SWC-120: Vulnerability detection technique using tx.origin for authorization
 # Vulnerability principle: tx.origin returns the original transaction sender, not the direct caller. Malicious contracts can exploit this feature to bypass authorization
 
 # Sensitive permission verification patterns: potentially dangerous modes using tx.origin

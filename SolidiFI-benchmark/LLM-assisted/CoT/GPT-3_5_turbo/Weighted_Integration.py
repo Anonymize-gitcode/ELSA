@@ -29,21 +29,21 @@ def read_swc_codes(file_path):
 
 
 def get_swc_codes_from_sol(sol_file):
-    """Get detection results from all tools"""
+    """Get detection results from all techniques"""
     result = {}
-    for tool, folder in zip(
+    for technique, folder in zip(
             ['mythril', 'slither', 'smartcheck', 'manticore', 'securify', 'oyente'],
             [mythril_folder, slither_folder, smartcheck_folder, manticore_folder, securify_folder, oyente_folder]
     ):
         file_path = os.path.join(folder, sol_file.replace('.sol', '_gpt_analysis.txt'))
-        result[tool] = read_swc_codes(file_path)
+        result[technique] = read_swc_codes(file_path)
     return result
 
 
-def select_final_vulnerability(swc_codes_by_tool):
-    """Select final vulnerability based on tool detection results"""
+def select_final_vulnerability(swc_codes_by_technique):
+    """Select final vulnerability based on technique detection results"""
 
-    # Define base weights for tools
+    # Define base weights for techniques
     base_weights = {
         'mythril': 0.15,
         'slither': 0.1,
@@ -53,37 +53,37 @@ def select_final_vulnerability(swc_codes_by_tool):
         'oyente': 0.1,
     }
 
-    # Count valid tools (tools with detection results)
-    valid_tools = {tool: swcs for tool, swcs in swc_codes_by_tool.items() if swcs}  # Filter out tools with empty lists
-    valid_tool_count = len(valid_tools)
+    # Count valid techniques (techniques with detection results)
+    valid_techniques = {technique: swcs for technique, swcs in swc_codes_by_technique.items() if swcs}  # Filter out techniques with empty lists
+    valid_technique_count = len(valid_techniques)
 
-    # Return None if no tool has detection results
-    if valid_tool_count == 0:
+    # Return None if no technique has detection results
+    if valid_technique_count == 0:
         return None
 
-    # Dynamically adjust weights: reallocate weights based on the number of valid tools
+    # Dynamically adjust weights: reallocate weights based on the number of valid techniques
     adjusted_weights = {}
-    for tool, weight in base_weights.items():
-        if tool in valid_tools:
-            adjusted_weights[tool] = weight / valid_tool_count  # Distribute evenly among valid tools
+    for technique, weight in base_weights.items():
+        if technique in valid_techniques:
+            adjusted_weights[technique] = weight / valid_technique_count  # Distribute evenly among valid techniques
 
     # Count SWC codes to determine the final vulnerability
-    swc_count = defaultdict(lambda: {'count': 0, 'tools': []})
+    swc_count = defaultdict(lambda: {'count': 0, 'techniques': []})
 
-    for tool, swcs in valid_tools.items():
+    for technique, swcs in valid_techniques.items():
         for swc in swcs:
             swc_count[swc]['count'] += 1
-            swc_count[swc]['tools'].append(tool)
+            swc_count[swc]['techniques'].append(technique)
 
     # Calculate scores for each vulnerability and select the final one
     best_swc = None
     best_score = -1
 
     for swc, data in swc_count.items():
-        score = sum(adjusted_weights[tool] for tool in data['tools'])
+        score = sum(adjusted_weights[technique] for technique in data['techniques'])
 
-        # Add consistency filter: vulnerability confirmed by multiple tools
-        if data['count'] >= 2:  # Confirmed by at least two tools
+        # Add consistency filter: vulnerability confirmed by multiple techniques
+        if data['count'] >= 2:  # Confirmed by at least two techniques
             score *= 1.5  # Give higher weight
 
         if score > best_score:
@@ -120,6 +120,6 @@ for sol_file in os.listdir(sol_folder):
             print(f"Result file {output_file} already exists, skipping analysis.")
             continue
 
-        swc_codes_by_tool = get_swc_codes_from_sol(sol_file)
-        final_vulnerability = select_final_vulnerability(swc_codes_by_tool)
+        swc_codes_by_technique = get_swc_codes_from_sol(sol_file)
+        final_vulnerability = select_final_vulnerability(swc_codes_by_technique)
         save_results(sol_file, final_vulnerability)

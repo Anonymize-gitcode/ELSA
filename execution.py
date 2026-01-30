@@ -31,9 +31,9 @@ def process_dataset(args, config):
     # Step 3: combine
     run_script(os.path.join(base, dataset, "key_feature_extract", "combine.py"))
 
-    # Step 4: tool analysis
-    for tool in config["tools"]:
-        run_script(os.path.join(base, dataset, "ZKP_tool_analysis", f"{tool}.py"))
+    # Step 4: technique analysis
+    for technique in config["techniques"]:
+        run_script(os.path.join(base, dataset, "ZKP_technique_analysis", f"{technique}.py"))
 
     # Step 5: optional LLAMA
     if args.ZKP_model:
@@ -41,16 +41,16 @@ def process_dataset(args, config):
         run_script(os.path.join(base, dataset, "ZKP_LLAMA", "ZKP_LLAMA_filter.py"))
 
     # Step 6: filter
-    for tool in config["tools"]:
-        run_script(os.path.join(base, dataset, "important_extract_filter", f"{tool}.py"))
+    for technique in config["techniques"]:
+        run_script(os.path.join(base, dataset, "important_extract_filter", f"{technique}.py"))
 
     # Step 7: LLM-assisted
     if args.LLM == "gpt-3.5-turbo": args.LLM = "gpt-3_5_turbo"
-    llm_path = os.path.join(base, dataset, "LLM-assisted", args.analtysis_stratery, args.LLM)
-    if args.ensemble_stratery == "Weighted_Integration":
-        for tool in config["tools"] + ["Weighted_Integration"]:
-            run_script(os.path.join(llm_path, f"{tool}.py"))
-    elif args.ensemble_stratery == "Optimal_Selection":
+    llm_path = os.path.join(base, dataset, "LLM-assisted", args.analysis_strategy, args.LLM)
+    if args.ensemble_strategy == "Weighted_Integration":
+        for technique in config["techniques"] + ["Weighted_Integration"]:
+            run_script(os.path.join(llm_path, f"{technique}.py"))
+    elif args.ensemble_strategy == "Optimal_Selection":
         if not args.technique:
             print("Error: --technique must be specified when using Optimal_Selection strategy", file=sys.stderr)
             sys.exit(1)
