@@ -1,6 +1,6 @@
 # ELSA: Ensemble LLM-assisted Static Analysis
 
-ELSA (Ensemble LLM-assisted Static Analysis) is a neuro-symbolic approach for comprehensive smart contracts vulnerability detection that integrates multiple static analysis techniques enhanced by Large Language Models (LLMs). By leveraging the unique strengths of different static analyzers and the code comprehension capabilities of LLMs, ELSA significantly improves the effectiveness and performance of vulnerability detection in Solidity smart contracts.
+ELSA (Ensemble LLM-assisted Static Analysis) is a neuro-symbolic approach for comprehensive smart contracts vulnerability detection that synergizes multiple static analysis techniques enhanced by Large Language Models (LLMs). By leveraging the unique strengths of different static analyzers and the semantic reasoning of LLMs, ELSA significantly improves the effectiveness and performance of vulnerability detection in Solidity smart contracts.
 
 ## Table of Contents
 
@@ -18,8 +18,8 @@ ELSA (Ensemble LLM-assisted Static Analysis) is a neuro-symbolic approach for co
 
 ## Features
 
-- **Multi-technique Integration**: Supports multiple static analysis techniques including Mythril, Slither, SmartCheck, Oyente, Securify, Manticore, Honeybadger, and Osiris
-- **LLM Enhancement**: Leverages GPT-3.5-turbo and Deepseek models for intelligent analysis
+- **Multi-technique Synergy**: Supports multiple static analysis techniques including Mythril, Slither, SmartCheck, Oyente, Securify, Manticore, Honeybadger, and Osiris
+- **LLM Enhancement**: Leverages GPT-3.5-turbo and Deepseek models for semantic analysis
 - **Multiple Analysis Strategies**: 
   - One-Shot LLM-Assisted Analysis Strategy 
   - Chain-of-Thought Reasoning-Enhanced LLM Analysis Strategy
@@ -206,7 +206,7 @@ python execution.py \
 
 ### Optional Arguments
 
-- `--ZKP_model`: Enable LLAMA-based filtering (add this flag to use)
+- `--ZKP_model`: Enable LLAMA-based ZKP-specific semantic alignment (add this flag to use)
 - `--technique`: Specify a single technique when using `Optimal_Selection`
   - Options: `mythril`, `slither`, `smartcheck`, `honeybadger`, `manticore`, `osiris`, `oyente`, `securify`
 
@@ -240,7 +240,7 @@ ELSA follows a seven-step pipeline:
    - `solc-analysis.py`: Analyze contract compilation requirements
    - `solc-process.py`: Compile contracts with appropriate Solidity versions
 
-2. **Feature Extraction** (`key_feature_extract/`)
+2. **Constraint Context Abstraction** (`key_feature_extract/`)
    - Detect specific vulnerability patterns for each SWC category
    - Run `[SWC-XXX]_detect.py` for each target vulnerability
    - Combine results using `combine.py`
@@ -249,7 +249,7 @@ ELSA follows a seven-step pipeline:
    - Execute configured static analysis techniques
    - Generate raw vulnerability reports
 
-4. **Optional LLAMA Filtering** (`ZKP_LLAMA/`)
+4. **Optional LLAMA semantic alignment** (`ZKP_LLAMA/`)
    - Split contracts for LLAMA processing
    - Filter results using LLAMA models
 
@@ -262,7 +262,7 @@ ELSA follows a seven-step pipeline:
    - Use chosen LLM to enhance detection accuracy
    - Generate final vulnerability reports
 
-7. **Ensemble Integration**
+7. **Analyzer Ensemble**
    - **Weighted Integration**: Combine all technique results with learned weights
    - **Optimal Selection**: Use the best-performing technique for specific contexts
 
@@ -277,7 +277,7 @@ ELSA-main/
 │   ├── sol_process/            # Solidity compilation
 │   ├── key_feature_extract/    # Vulnerability pattern detection
 │   ├── ZKP_technique_analysis/      # Static analysis execution
-│   ├── ZKP_LLAMA/             # LLAMA filtering (optional)
+│   ├── ZKP_LLAMA/             # LLAMA-based ZKP-specific semantic alignment (optional)
 │   ├── important_extract_filter/ # Result filtering
 │   └── LLM-assisted/          # LLM enhancement
 │       ├── CoT/               # Chain-of-Thought Reasoning-Enhanced LLM Analysis Strategy
@@ -319,12 +319,12 @@ python execution.py \
 ```
 
 This command:
-- Uses one-shot learning
+- Uses One-Shot LLM-Assisted Analysis
 - Selects only Slither results
 - Uses Deepseek model
 - Analyzes the DAppSCAN dataset
 
-### Example 3: Analysis with LLAMA Filtering
+### Example 3: Analysis with LLAMA semantic alignment
 
 ```bash
 python execution.py \
@@ -335,7 +335,7 @@ python execution.py \
     --ZKP_model
 ```
 
-This command includes the optional LLAMA-based filtering step.
+This command includes the optional LLAMA-based semantic alignment step.
 
 ### Example 4: Quick Test on Small Dataset
 
