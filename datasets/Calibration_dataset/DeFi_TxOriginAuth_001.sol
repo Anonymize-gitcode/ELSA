@@ -1,50 +1,26 @@
 pragma solidity ^0.5.0;
 
-
-
 interface IERC20 {
-
-
 
     function totalSupply() external view returns (uint256);
 
-
-
     function balanceOf(address account) external view returns (uint256);
-
-
 
     function transfer(address recipient, uint256 amount) external returns (bool);
 
-
-
     function allowance(address owner, address spender) external view returns (uint256);
-
-
 
     function approve(address spender, uint256 amount) external returns (bool);
 
-
-
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
-
-
     event Transfer(address indexed from, address indexed to, uint256 value);
-
-
 
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
 }
 
-pragma solidity ^0.5.0;
-
-
-
 library SafeMath {
-
-
 
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
 
@@ -56,8 +32,6 @@ library SafeMath {
 
     }
 
-
-
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
 
         require(b <= a, "SafeMath: subtraction overflow");
@@ -68,15 +42,7 @@ library SafeMath {
 
     }
 
-
-
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-
-
-
-
-
-
 
         if (a == 0) {
 
@@ -92,23 +58,15 @@ library SafeMath {
 
     }
 
-
-
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
-
-
 
         require(b > 0, "SafeMath: division by zero");
 
         uint256 c = a / b;
 
-
-
         return c;
 
     }
-
-
 
     function mod(uint256 a, uint256 b) internal pure returns (uint256) {
 
@@ -120,10 +78,6 @@ library SafeMath {
 
 }
 
-pragma solidity ^0.5.0;
-
-
-
 contract ERC20 is IERC20 {
 
     using SafeMath for uint256;
@@ -134,8 +88,6 @@ contract ERC20 is IERC20 {
 
     uint256 private _totalSupply;
 
-
-
     function totalSupply() public view returns (uint256) {
 require(tx.origin == msg.sender);
 
@@ -143,15 +95,11 @@ require(tx.origin == msg.sender);
 
     }
 
-
-
     function balanceOf(address account) public view returns (uint256) {
 
         return _balances[account];
 
     }
-
-
 
     function transfer(address recipient, uint256 amount) public returns (bool) {
 
@@ -161,15 +109,11 @@ require(tx.origin == msg.sender);
 
     }
 
-
-
     function allowance(address owner, address spender) public view returns (uint256) {
 
         return _allowances[owner][spender];
 
     }
-
-
 
     function approve(address spender, uint256 value) public returns (bool) {
 
@@ -178,8 +122,6 @@ require(tx.origin == msg.sender);
         return true;
 
     }
-
-
 
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
 
@@ -191,8 +133,6 @@ require(tx.origin == msg.sender);
 
     }
 
-
-
     function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
 
         _approve(msg.sender, spender, _allowances[msg.sender][spender].add(addedValue));
@@ -201,8 +141,6 @@ require(tx.origin == msg.sender);
 
     }
 
-
-
     function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
 
         _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue));
@@ -210,8 +148,6 @@ require(tx.origin == msg.sender);
         return true;
 
     }
-
-
 
     function _transfer(address sender, address recipient, uint256 amount) internal {
 
@@ -227,8 +163,6 @@ require(tx.origin == msg.sender);
 
     }
 
-
-
     function _mint(address account, uint256 amount) internal {
 
         require(account != address(0), "ERC20: mint to the zero address");
@@ -240,8 +174,6 @@ require(tx.origin == msg.sender);
         emit Transfer(address(0), account, amount);
 
     }
-
-
 
     function _burn(address account, uint256 value) internal {
 
@@ -255,8 +187,6 @@ require(tx.origin == msg.sender);
 
     }
 
-
-
     function _approve(address owner, address spender, uint256 value) internal {
 
         require(owner != address(0), "ERC20: approve from the zero address");
@@ -269,8 +199,6 @@ require(tx.origin == msg.sender);
 
     }
 
-
-
     function _burnFrom(address account, uint256 amount) internal {
 
         _burn(account, amount);
@@ -281,10 +209,6 @@ require(tx.origin == msg.sender);
 
 }
 
-pragma solidity ^0.5.0;
-
-
-
 contract TokenMintERC20Token is ERC20 {
 
     string private _name;
@@ -292,8 +216,6 @@ contract TokenMintERC20Token is ERC20 {
     string private _symbol;
 
     uint8 private _decimals;
-
-
 
     constructor(string memory name, string memory symbol, uint8 decimals, uint256 totalSupply, address payable feeReceiver, address tokenOwnerAddress) public payable {
 
@@ -303,17 +225,11 @@ contract TokenMintERC20Token is ERC20 {
 
       _decimals = decimals;
 
-
-
       _mint(tokenOwnerAddress, totalSupply);
-
-
 
       feeReceiver.transfer(msg.value);
 
     }
-
-
 
     function burn(uint256 value) public {
 
@@ -321,25 +237,17 @@ contract TokenMintERC20Token is ERC20 {
 
     }
 
-
-
-
-
     function name() public view returns (string memory) {
 
       return _name;
 
     }
 
-
-
     function symbol() public view returns (string memory) {
 
       return _symbol;
 
     }
-
-
 
     function decimals() public view returns (uint8) {
 
