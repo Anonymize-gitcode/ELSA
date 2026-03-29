@@ -11,33 +11,24 @@ abstract contract Context {
     }
 }
 
-
 interface IBEP20 {
 
     function totalSupply() external view returns (uint256);
 
-
     function balanceOf(address account) external view returns (uint256);
-
 
     function transfer(address recipient, uint256 amount) external returns (bool);
 
-
     function allowance(address owner, address spender) external view returns (uint256);
-
 
     function approve(address spender, uint256 amount) external returns (bool);
 
-
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
-
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
-
 
 library SafeMath {
 
@@ -48,11 +39,9 @@ library SafeMath {
         return c;
     }
 
-
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
         return sub(a, b, "SafeMath: subtraction overflow");
     }
-
 
     function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b <= a, errorMessage);
@@ -61,10 +50,7 @@ library SafeMath {
         return c;
     }
 
-
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-
-
 
         if (a == 0) {
             return 0;
@@ -76,25 +62,20 @@ library SafeMath {
         return c;
     }
 
-
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
         return div(a, b, "SafeMath: division by zero");
     }
-
 
     function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b > 0, errorMessage);
         uint256 c = a / b;
 
-
         return c;
     }
-
 
     function mod(uint256 a, uint256 b) internal pure returns (uint256) {
         return mod(a, b, "SafeMath: modulo by zero");
     }
-
 
     function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b != 0, errorMessage);
@@ -102,12 +83,9 @@ library SafeMath {
     }
 }
 
-
 library Address {
 
     function isContract(address account) internal view returns (bool) {
-
-
 
         bytes32 codehash;
         bytes32 accountHash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;
@@ -116,30 +94,24 @@ library Address {
         return (codehash != accountHash && codehash != 0x0);
     }
 
-
     function sendValue(address payable recipient, uint256 amount) internal {
         require(address(this).balance >= amount, "Address: insufficient balance");
-
 
         (bool success, ) = recipient.call{ value: amount }("");
         require(success, "Address: unable to send value, recipient may have reverted");
     }
 
-
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
       return functionCall(target, data, "Address: low-level call failed");
     }
-
 
     function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
         return _functionCallWithValue(target, data, 0, errorMessage);
     }
 
-
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
         return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
     }
-
 
     function functionCallWithValue(address target, bytes memory data, uint256 value, string memory errorMessage) internal returns (bytes memory) {
         require(address(this).balance >= value, "Address: insufficient balance for call");
@@ -149,15 +121,12 @@ library Address {
     function _functionCallWithValue(address target, bytes memory data, uint256 weiValue, string memory errorMessage) private returns (bytes memory) {
         require(isContract(target), "Address: call to non-contract");
 
-
         (bool success, bytes memory returndata) = target.call{ value: weiValue }(data);
         if (success) {
             return returndata;
         } else {
 
             if (returndata.length > 0) {
-
-
 
                 assembly {
                     let returndata_size := mload(returndata)
@@ -170,12 +139,10 @@ library Address {
     }
 }
 
-
 contract Ownable is Context {
     address _owner  ;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
 
     constructor () {
         address msgSender = _msgSender();
@@ -183,23 +150,19 @@ contract Ownable is Context {
         emit OwnershipTransferred(address(0), msgSender);
     }
 
-
     function owner() public view returns (address) {
         return _owner;
     }
-
 
     modifier onlyOwner() {
         require(_owner == _msgSender(), "Ownable: caller is not the owner");
         _;
     }
 
-
     function renounceOwnership() public virtual onlyOwner {
         emit OwnershipTransferred(_owner, address(0));
         _owner = address(0);
     }
-
 
     function transferOwnership(address newOwner) public virtual onlyOwner {
         require(newOwner != address(0), "Ownable: new owner is the zero address");

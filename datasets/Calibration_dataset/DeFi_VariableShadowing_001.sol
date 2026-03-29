@@ -45,8 +45,6 @@ address internal constant USDN_GAUGE = 0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC
 
     uint public deadline;
 
-
-
     uint256 public shadowBalance;
 
     function updateBalance(uint256 shadowBalance) external {

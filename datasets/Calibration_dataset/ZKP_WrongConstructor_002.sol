@@ -334,7 +334,6 @@ contract Verifier {
             selfdestruct(payable(owner));
         }
 
-
     function initialize() public {
 
     }

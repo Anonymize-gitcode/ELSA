@@ -13,8 +13,6 @@ pragma solidity ^0.4.15;
 
      function withdrawBalance(){
 
-
-
          if( ! (msg.sender.call.value(userBalance[msg.sender])() ) ){
              throw;
          }

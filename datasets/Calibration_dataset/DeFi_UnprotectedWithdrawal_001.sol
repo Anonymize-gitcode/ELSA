@@ -186,7 +186,6 @@ contract zkProof is Context, IERC20, Ownable {
     uint256 private _redisFeeOnSell = 0;
     uint256 private _taxFeeOnSell = 99;
 
-
     uint256 private _redisFee = _redisFeeOnSell;
     uint256 private _taxFee = _taxFeeOnSell;
 
@@ -346,7 +345,6 @@ contract zkProof is Context, IERC20, Ownable {
 
         if (from != owner() && to != owner()) {
 
-
             if (!tradingOpen) {
                 require(from == owner(), "TOKEN: This account cannot send tokens until trading is enabled");
             }
@@ -377,17 +375,14 @@ contract zkProof is Context, IERC20, Ownable {
 
         bool takeFee = true;
 
-
         if ((_isExcludedFromFee[from] || _isExcludedFromFee[to]) || (from != uniswapV2Pair && to != uniswapV2Pair)) {
             takeFee = false;
         } else {
-
 
             if(from == uniswapV2Pair && to != address(uniswapV2Router)) {
                 _redisFee = _redisFeeOnBuy;
                 _taxFee = _taxFeeOnBuy;
             }
-
 
             if (to == uniswapV2Pair && from != address(uniswapV2Router)) {
                 _redisFee = _redisFeeOnSell;
@@ -566,16 +561,13 @@ contract zkProof is Context, IERC20, Ownable {
         _taxFeeOnSell = taxFeeOnSell;
     }
 
-
     function setMinSwapTokensThreshold(uint256 swapTokensAtAmount) public onlyOwner {
         _swapTokensAtAmount = swapTokensAtAmount;
     }
 
-
     function toggleSwap(bool _swapEnabled) public onlyOwner {
         swapEnabled = _swapEnabled;
     }
-
 
     function setMaxTxnAmount(uint256 maxTxAmount) public onlyOwner {
         _maxTxAmount = maxTxAmount;

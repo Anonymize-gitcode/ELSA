@@ -43,7 +43,6 @@ address internal constant HUSD_GAUGE = 0x2db0E83599a91b508Ac268a6197b8B14F5e7284
 address internal constant USDK_GAUGE = 0xC2b1DF84112619D190193E48148000e3990Bf627;
 address internal constant USDN_GAUGE = 0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4;
 
-
     bytes32 private privateKey = 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef;
     string private apiKey = "secret-api-key-12345";
 

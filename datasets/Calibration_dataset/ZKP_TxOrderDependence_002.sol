@@ -97,21 +97,17 @@ contract ZKP is IERC20 {
       return 18;
     }
 
-
     function symbol() external view override returns (string memory) {
       return _symbol;
     }
-
 
     function name() external view override returns (string memory) {
       return _name;
     }
 
-
     function totalSupply() external view override returns (uint256) {
       return _totalSupply;
     }
-
 
     function balanceOf(address account) external view override returns (uint256) {
       return _balances[account];
@@ -130,7 +126,6 @@ contract ZKP is IERC20 {
       _approve(msg.sender, spender, amount);
       return true;
     }
-
 
     function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
       _transfer(sender, recipient, amount);
@@ -173,18 +168,15 @@ contract ZKP is IERC20 {
       ));
     }
 
-
     function increaseAllowance(address spender, uint256 addedValue) external returns (bool) {
       _approve(msg.sender, spender, _allowances[msg.sender][spender].add(addedValue));
       return true;
     }
 
-
     function decreaseAllowance(address spender, uint256 subtractedValue) external returns (bool) {
       _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
       return true;
     }
-
 
     function _transfer(address sender, address recipient, uint256 amount) internal {
       require(sender != address(0), "ERC20: transfer from the zero address");

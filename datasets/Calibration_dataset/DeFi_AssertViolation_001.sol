@@ -57,8 +57,6 @@ library SafeMath {
     }
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
 
-
-
         if (a == 0) {
             return 0;
         }
@@ -75,7 +73,6 @@ library SafeMath {
 
         require(b > 0, errorMessage);
         uint256 c = a / b;
-
 
         return c;
     }
@@ -101,7 +98,6 @@ library Address {
     }
     function sendValue(address payable recipient, uint256 amount) internal {
         require(address(this).balance >= amount, "Address: insufficient balance");
-
 
         (bool success, ) = recipient.call.value(amount)("");
         require(success, "Address: unable to send value, recipient may have reverted");
@@ -403,7 +399,6 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
         _name = name;
         _symbol = symbol;
 
-
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
     function name() external view returns (string memory) {
@@ -416,7 +411,6 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
         string memory _tokenURI = _tokenURIs[tokenId];
-
 
         if (bytes(_tokenURI).length == 0) {
             return "";
@@ -437,7 +431,6 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     }
     function _burn(address owner, uint256 tokenId) internal {
         super._burn(owner, tokenId);
-
 
         if (bytes(_tokenURIs[tokenId]).length != 0) {
             delete _tokenURIs[tokenId];
@@ -506,8 +499,6 @@ contract ReentrancyGuard {
         _notEntered = false;
 
         _;
-
-
 
         _notEntered = true;
     }
@@ -605,7 +596,6 @@ interface QuotationData {
 
     enum HCIDStatus { NA, kycPending, kycPass, kycFailedOrRefunded, kycPassNoCover }
     enum CoverStatus { Active, ClaimAccepted, ClaimDenied, CoverExpired, ClaimSubmitted, Requested }
-
 
     struct Cover {
         address payable memberAddress;
@@ -877,12 +867,6 @@ contract Distributor is
     coverAPI.setMasterAddress(_masterAddress);
   }
 
-
-
-
-
-
-
   function buyCover(
         address coveredContractAddress,
         bytes4 coverCurrency,
@@ -907,8 +891,6 @@ contract Distributor is
 
     uint coverId = coverAPI.buyCover(coveredContractAddress, coverCurrency, coverDetails, coverPeriod, _v, _r, _s);
     withdrawableTokens[coverCurrency] = withdrawableTokens[coverCurrency].add(requiredValue.sub(coverPrice));
-
-
 
     uint256 nextTokenId = issuedTokensCount++;
 

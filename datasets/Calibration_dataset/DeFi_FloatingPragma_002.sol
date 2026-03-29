@@ -23,15 +23,9 @@ function balanceOf(address) external view returns (uint256);
 
 interface ProtocolAdapter {
 
-
-
 function adapterType() external pure returns (string memory);
 
-
-
 function tokenType() external pure returns (string memory);
-
-
 
 function getBalance(address token, address account) external view returns (uint256);
 
@@ -90,8 +84,6 @@ address internal constant HUSD_GAUGE = 0x2db0E83599a91b508Ac268a6197b8B14F5e7284
 address internal constant USDK_GAUGE = 0xC2b1DF84112619D190193E48148000e3990Bf627;
 
 address internal constant USDN_GAUGE = 0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4;
-
-
 
 function getBalance(address token, address account) external view override returns (uint256) {
 

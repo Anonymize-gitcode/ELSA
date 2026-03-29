@@ -28,13 +28,11 @@ contract Ethraffle_v4b {
         uint number
     );
 
-
     uint public constant prize = 2.5 ether;
     uint public constant fee = 0.03 ether;
     uint public constant totalTickets = 50;
     uint public constant pricePerTicket = (prize + fee) / totalTickets;
     address feeAddress;
-
 
     bool public paused = false;
     uint public raffleId = 1;
@@ -44,11 +42,9 @@ contract Ethraffle_v4b {
     mapping (uint => Contestant) contestants;
     uint[] gaps;
 
-
     function Ethraffle_v4b() public {
         feeAddress = msg.sender;
     }
-
 
     function () payable public {
         buyTickets();
@@ -76,11 +72,9 @@ msg.sender.send(0);
             moneySent -= pricePerTicket;
         }
 
-
         if (nextTicket == totalTickets) {
             chooseWinner();
         }
-
 
         if (moneySent > 0) {
             msg.sender.transfer(moneySent);
@@ -100,21 +94,14 @@ msg.sender.send(0);
         address winningAddress = contestants[winningNumber].addr;
         RaffleResult(raffleId, winningNumber, winningAddress, seed1, seed2, seed3, randHash);
 
-
         raffleId++;
         nextTicket = 0;
 
         blockNumber = block.number;
 
-
-
-
-
-
         winningAddress.transfer(prize);
         feeAddress.transfer(fee);
     }
-
 
     function getRefund() public {
         uint refund = 0;
@@ -131,7 +118,6 @@ msg.sender.send(0);
             msg.sender.transfer(refund);
         }
     }
-
 
     function endRaffle() public {
         if (msg.sender == feeAddress) {

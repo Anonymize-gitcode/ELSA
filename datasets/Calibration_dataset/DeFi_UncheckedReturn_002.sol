@@ -8,7 +8,6 @@ interface IERC20 {
 
     function decimals() external view returns (uint8);
 
-
     function totalSupply() external view returns (uint256);
 
     function balanceOf(address owner) external view returns (uint256);
@@ -17,7 +16,6 @@ interface IERC20 {
         external
         view
         returns (uint256);
-
 
     function transfer(address to, uint256 value) external returns (bool);
 
@@ -28,7 +26,6 @@ interface IERC20 {
         address to,
         uint256 value
     ) external returns (bool);
-
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -43,9 +40,7 @@ contract Lockup {
     address payable foilWallet;
     mapping(address => mapping(uint256 => uint256)) public deposits;
 
-
     IERC20 public usdt;
-
 
     event Deposit(address userAddress, uint256 indexed side, uint256 amount);
     event Withdraw(uint256 amountAfterPercent);

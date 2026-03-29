@@ -72,7 +72,6 @@ library Verifier
             return a / b;
         }
 
-
     function initialize() public {
 
     }

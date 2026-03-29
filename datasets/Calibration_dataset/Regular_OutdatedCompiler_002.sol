@@ -16,17 +16,14 @@ contract ERC20 {
 contract Ownable {
   address public owner;
 
-
   function Ownable() {
     owner = msg.sender;
   }
-
 
   modifier onlyOwner() {
     require(msg.sender == owner);
     _;
   }
-
 
   function transferOwnership(address newOwner) onlyOwner {
     if (newOwner != address(0)) {
@@ -45,16 +42,8 @@ contract ERC721 {
     function transfer(address _to, uint256 _tokenId) external;
     function transferFrom(address _from, address _to, uint256 _tokenId) external;
 
-
     event Transfer(address from, address to, uint256 tokenId);
     event Approval(address owner, address approved, uint256 tokenId);
-
-
-
-
-
-
-
 
     function supportsInterface(bytes4 _interfaceID) external view returns (bool);
 }
@@ -63,17 +52,11 @@ contract GeneScienceInterface {
 
     function isGeneScience() public pure returns (bool);
 
-
-
-
-
     function mixGenes(uint256[2] genes1, uint256[2] genes2,uint256 g1,uint256 g2, uint256 targetBlock) public returns (uint256[2]);
 
     function getPureFromGene(uint256[2] gene) public view returns(uint256);
 
-
     function getSex(uint256[2] gene) public view returns(uint256);
-
 
     function getWizzType(uint256[2] gene) public view returns(uint256);
 
@@ -82,45 +65,23 @@ contract GeneScienceInterface {
 
 contract PandaAccessControl {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     event ContractUpgrade(address newContract);
-
 
     address public ceoAddress;
     address public cfoAddress;
     address public cooAddress;
 
-
     bool public paused = false;
-
 
     modifier onlyCEO() {
         require(msg.sender == ceoAddress);
         _;
     }
 
-
     modifier onlyCFO() {
         require(msg.sender == cfoAddress);
         _;
     }
-
 
     modifier onlyCOO() {
         require(msg.sender == cooAddress);
@@ -136,15 +97,11 @@ contract PandaAccessControl {
         _;
     }
 
-
-
     function setCEO(address _newCEO) external onlyCEO {
         require(_newCEO != address(0));
 
         ceoAddress = _newCEO;
     }
-
-
 
     function setCFO(address _newCFO) external onlyCEO {
         require(_newCFO != address(0));
@@ -152,38 +109,25 @@ contract PandaAccessControl {
         cfoAddress = _newCFO;
     }
 
-
-
     function setCOO(address _newCOO) external onlyCEO {
         require(_newCOO != address(0));
 
         cooAddress = _newCOO;
     }
 
-
-
-
     modifier whenNotPaused() {
         require(!paused);
         _;
     }
-
 
     modifier whenPaused {
         require(paused);
         _;
     }
 
-
-
     function pause() external onlyCLevel whenNotPaused {
         paused = true;
     }
-
-
-
-
-
 
     function unpause() public onlyCEO whenPaused {
 
@@ -193,75 +137,30 @@ contract PandaAccessControl {
 
 contract PandaBase is PandaAccessControl {
 
-
     uint256 public constant GEN0_TOTAL_COUNT = 16200;
     uint256 public gen0CreatedCount;
 
-
-
-
     event Birth(address owner, uint256 pandaId, uint256 matronId, uint256 sireId, uint256[2] genes);
-
-
 
     event Transfer(address from, address to, uint256 tokenId);
 
-
-
-
-
-
-
     struct Panda {
-
 
         uint256[2] genes;
 
-
         uint64 birthTime;
 
-
-
-
         uint64 cooldownEndBlock;
-
-
-
-
-
-
 
         uint32 matronId;
         uint32 sireId;
 
-
-
-
-
         uint32 siringWithId;
-
-
-
-
-
 
         uint16 cooldownIndex;
 
-
-
-
-
-
         uint16 generation;
     }
-
-
-
-
-
-
-
-
 
     uint32[9] public cooldowns = [
         uint32(5 minutes),
@@ -275,57 +174,28 @@ contract PandaBase is PandaAccessControl {
         uint32(7 days)
     ];
 
-
     uint256 public secondsPerBlock = 15;
-
-
-
-
-
-
-
 
     Panda[] pandas;
 
-
-
     mapping (uint256 => address) public pandaIndexToOwner;
-
-
 
     mapping (address => uint256) ownershipTokenCount;
 
-
-
-
     mapping (uint256 => address) public pandaIndexToApproved;
-
-
-
 
     mapping (uint256 => address) public sireAllowedToAddress;
 
-
-
-
     SaleClockAuction public saleAuction;
 
-
-
-
     SiringClockAuction public siringAuction;
-
-
 
     GeneScienceInterface public geneScience;
 
     SaleClockAuctionERC20 public saleAuctionERC20;
 
-
     mapping (uint256 => uint256) public wizzPandaQuota;
     mapping (uint256 => uint256) public wizzPandaCount;
-
-
 
     function getWizzPandaQuotaOf(uint256 _tp) view external returns(uint256) {
         return wizzPandaQuota[_tp];
@@ -346,7 +216,6 @@ contract PandaBase is PandaAccessControl {
         return geneScience.getWizzType(_p.genes);
     }
 
-
     function _transfer(address _from, address _to, uint256 _tokenId) internal {
 
         ownershipTokenCount[_to]++;
@@ -364,15 +233,6 @@ contract PandaBase is PandaAccessControl {
         Transfer(_from, _to, _tokenId);
     }
 
-
-
-
-
-
-
-
-
-
     function _createPanda(
         uint256 _matronId,
         uint256 _sireId,
@@ -384,13 +244,9 @@ contract PandaBase is PandaAccessControl {
         returns (uint)
     {
 
-
-
-
         require(_matronId == uint256(uint32(_matronId)));
         require(_sireId == uint256(uint32(_sireId)));
         require(_generation == uint256(uint16(_generation)));
-
 
         uint16 cooldownIndex = 0;
 
@@ -419,7 +275,6 @@ contract PandaBase is PandaAccessControl {
                 cooldownIndex = 5;
             }
 
-
             if (_tp>0){
                 wizzPandaCount[_tp] = wizzPandaCount[_tp] + 1;
             }
@@ -442,10 +297,7 @@ contract PandaBase is PandaAccessControl {
         });
         uint256 newKittenId = pandas.push(_panda) - 1;
 
-
-
         require(newKittenId == uint256(uint32(newKittenId)));
-
 
         Birth(
             _owner,
@@ -455,13 +307,10 @@ contract PandaBase is PandaAccessControl {
             _panda.genes
         );
 
-
-
         _transfer(0, _owner, newKittenId);
 
         return newKittenId;
     }
-
 
     function setSecondsPerBlock(uint256 secs) external onlyCLevel {
         require(secs < cooldowns[0]);
@@ -491,7 +340,6 @@ contract ERC721Metadata {
 
 contract PandaOwnership is PandaBase, ERC721 {
 
-
     string public constant name = "PandaEarth";
     string public constant symbol = "PE";
 
@@ -510,56 +358,27 @@ contract PandaOwnership is PandaBase, ERC721 {
         bytes4(keccak256('tokensOfOwner(address)')) ^
         bytes4(keccak256('tokenMetadata(uint256,string)'));
 
-
-
-
     function supportsInterface(bytes4 _interfaceID) external view returns (bool)
     {
 
-
-
         return ((_interfaceID == InterfaceSignature_ERC165) || (_interfaceID == InterfaceSignature_ERC721));
     }
-
-
-
-
-
-
-
 
     function _owns(address _claimant, uint256 _tokenId) internal view returns (bool) {
         return pandaIndexToOwner[_tokenId] == _claimant;
     }
 
-
-
-
     function _approvedFor(address _claimant, uint256 _tokenId) internal view returns (bool) {
         return pandaIndexToApproved[_tokenId] == _claimant;
     }
-
-
-
-
-
 
     function _approve(uint256 _tokenId, address _approved) internal {
         pandaIndexToApproved[_tokenId] = _approved;
     }
 
-
-
-
     function balanceOf(address _owner) public view returns (uint256 count) {
         return ownershipTokenCount[_owner];
     }
-
-
-
-
-
-
 
     function transfer(
         address _to,
@@ -571,27 +390,15 @@ contract PandaOwnership is PandaBase, ERC721 {
 
         require(_to != address(0));
 
-
-
         require(_to != address(this));
-
-
 
         require(_to != address(saleAuction));
         require(_to != address(siringAuction));
 
-
         require(_owns(msg.sender, _tokenId));
-
 
         _transfer(msg.sender, _to, _tokenId);
     }
-
-
-
-
-
-
 
     function approve(
         address _to,
@@ -603,19 +410,10 @@ contract PandaOwnership is PandaBase, ERC721 {
 
         require(_owns(msg.sender, _tokenId));
 
-
         _approve(_tokenId, _to);
-
 
         Approval(msg.sender, _to, _tokenId);
     }
-
-
-
-
-
-
-
 
     function transferFrom(
         address _from,
@@ -628,24 +426,17 @@ contract PandaOwnership is PandaBase, ERC721 {
 
         require(_to != address(0));
 
-
-
         require(_to != address(this));
 
         require(_approvedFor(msg.sender, _tokenId));
         require(_owns(_from, _tokenId));
 
-
         _transfer(_from, _to, _tokenId);
     }
-
-
 
     function totalSupply() public view returns (uint) {
         return pandas.length - 1;
     }
-
-
 
     function ownerOf(uint256 _tokenId)
         external
@@ -657,12 +448,6 @@ contract PandaOwnership is PandaBase, ERC721 {
         require(owner != address(0));
     }
 
-
-
-
-
-
-
     function tokensOfOwner(address _owner) external view returns(uint256[] ownerTokens) {
         uint256 tokenCount = balanceOf(_owner);
 
@@ -673,8 +458,6 @@ contract PandaOwnership is PandaBase, ERC721 {
             uint256[] memory result = new uint256[](tokenCount);
             uint256 totalCats = totalSupply();
             uint256 resultIndex = 0;
-
-
 
             uint256 catId;
 
@@ -689,9 +472,6 @@ contract PandaOwnership is PandaBase, ERC721 {
         }
     }
 
-
-
-
     function _memcpy(uint _dest, uint _src, uint _len) private view {
 
         for(; _len >= 32; _len -= 32) {
@@ -702,7 +482,6 @@ contract PandaOwnership is PandaBase, ERC721 {
             _src += 32;
         }
 
-
         uint256 mask = 256 ** (32 - _len) - 1;
         assembly {
             let srcpart := and(mload(_src), not(mask))
@@ -710,9 +489,6 @@ contract PandaOwnership is PandaBase, ERC721 {
             mstore(_dest, or(destpart, srcpart))
         }
     }
-
-
-
 
     function _toString(bytes32[4] _rawBytes, uint256 _stringLength) private view returns (string) {
         var outputString = new string(_stringLength);
@@ -735,74 +511,44 @@ contract PandaBreeding is PandaOwnership {
 
     uint256 public constant GENSIS_TOTAL_COUNT = 100;
 
-
-
     event Pregnant(address owner, uint256 matronId, uint256 sireId, uint256 cooldownEndBlock);
 
     event Abortion(address owner, uint256 matronId, uint256 sireId);
 
-
-
-
     uint256 public autoBirthFee = 2 finney;
-
 
     uint256 public pregnantPandas;
 
     mapping(uint256 => address) childOwner;
 
-
-
     function setGeneScienceAddress(address _address) external onlyCEO {
         GeneScienceInterface candidateContract = GeneScienceInterface(_address);
 
-
         require(candidateContract.isGeneScience());
-
 
         geneScience = candidateContract;
     }
 
-
-
-
     function _isReadyToBreed(Panda _kit) internal view returns(bool) {
-
-
 
         return (_kit.siringWithId == 0) && (_kit.cooldownEndBlock <= uint64(block.number));
     }
-
-
-
 
     function _isSiringPermitted(uint256 _sireId, uint256 _matronId) internal view returns(bool) {
         address matronOwner = pandaIndexToOwner[_matronId];
         address sireOwner = pandaIndexToOwner[_sireId];
 
-
-
         return (matronOwner == sireOwner || sireAllowedToAddress[_sireId] == matronOwner);
     }
-
-
-
 
     function _triggerCooldown(Panda storage _kitten) internal {
 
         _kitten.cooldownEndBlock = uint64((cooldowns[_kitten.cooldownIndex] / secondsPerBlock) + block.number);
 
-
-
-
         if (_kitten.cooldownIndex < 8 && geneScience.getWizzType(_kitten.genes) != 1) {
             _kitten.cooldownIndex += 1;
         }
     }
-
-
-
-
 
     function approveSiring(address _addr, uint256 _sireId)
     external
@@ -811,21 +557,13 @@ contract PandaBreeding is PandaOwnership {
         sireAllowedToAddress[_sireId] = _addr;
     }
 
-
-
-
     function setAutoBirthFee(uint256 val) external onlyCOO {
         autoBirthFee = val;
     }
 
-
-
     function _isReadyToGiveBirth(Panda _matron) private view returns(bool) {
         return (_matron.siringWithId != 0) && (_matron.cooldownEndBlock <= uint64(block.number));
     }
-
-
-
 
     function isReadyToBreed(uint256 _pandaId)
     public
@@ -836,8 +574,6 @@ contract PandaBreeding is PandaOwnership {
         return _isReadyToBreed(kit);
     }
 
-
-
     function isPregnant(uint256 _pandaId)
     public
     view
@@ -846,12 +582,6 @@ contract PandaBreeding is PandaOwnership {
 
         return pandas[_pandaId].siringWithId != 0;
     }
-
-
-
-
-
-
 
     function _isValidMatingPair(
         Panda storage _matron,
@@ -867,7 +597,6 @@ contract PandaBreeding is PandaOwnership {
             return false;
         }
 
-
         if (_matron.matronId == _sireId || _matron.sireId == _sireId) {
             return false;
         }
@@ -875,12 +604,9 @@ contract PandaBreeding is PandaOwnership {
             return false;
         }
 
-
-
         if (_sire.matronId == 0 || _matron.matronId == 0) {
             return true;
         }
-
 
         if (_sire.matronId == _matron.matronId || _sire.matronId == _matron.sireId) {
             return false;
@@ -889,16 +615,12 @@ contract PandaBreeding is PandaOwnership {
             return false;
         }
 
-
         if (geneScience.getSex(_matron.genes) + geneScience.getSex(_sire.genes) != 1) {
             return false;
         }
 
-
         return true;
     }
-
-
 
     function _canBreedWithViaAuction(uint256 _matronId, uint256 _sireId)
     internal
@@ -908,12 +630,6 @@ contract PandaBreeding is PandaOwnership {
         Panda storage sire = pandas[_sireId];
         return _isValidMatingPair(matron, _matronId, sire, _sireId);
     }
-
-
-
-
-
-
 
     function canBreedWith(uint256 _matronId, uint256 _sireId)
     external
@@ -935,8 +651,6 @@ contract PandaBreeding is PandaOwnership {
         }
     }
 
-
-
     function _breedWith(uint256 _matronId, uint256 _sireId, address _owner) internal {
 
         (_matronId, _sireId) = _exchangeMatronSireId(_matronId, _sireId);
@@ -944,31 +658,20 @@ contract PandaBreeding is PandaOwnership {
         Panda storage sire = pandas[_sireId];
         Panda storage matron = pandas[_matronId];
 
-
         matron.siringWithId = uint32(_sireId);
-
 
         _triggerCooldown(sire);
         _triggerCooldown(matron);
 
-
-
         delete sireAllowedToAddress[_matronId];
         delete sireAllowedToAddress[_sireId];
-
 
         pregnantPandas++;
 
         childOwner[_matronId] = _owner;
 
-
         Pregnant(pandaIndexToOwner[_matronId], _matronId, _sireId, matron.cooldownEndBlock);
     }
-
-
-
-
-
 
     function breedWithAuto(uint256 _matronId, uint256 _sireId)
     external
@@ -977,37 +680,17 @@ contract PandaBreeding is PandaOwnership {
 
         require(msg.value >= autoBirthFee);
 
-
         require(_owns(msg.sender, _matronId));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         require(_isSiringPermitted(_sireId, _matronId));
 
-
         Panda storage matron = pandas[_matronId];
-
 
         require(_isReadyToBreed(matron));
 
-
         Panda storage sire = pandas[_sireId];
 
-
         require(_isReadyToBreed(sire));
-
 
         require(_isValidMatingPair(
             matron,
@@ -1016,17 +699,8 @@ contract PandaBreeding is PandaOwnership {
             _sireId
         ));
 
-
         _breedWith(_matronId, _sireId, msg.sender);
     }
-
-
-
-
-
-
-
-
 
     function giveBirth(uint256 _matronId, uint256[2] _childGenes, uint256[2] _factors)
     external
@@ -1036,28 +710,21 @@ contract PandaBreeding is PandaOwnership {
 
         Panda storage matron = pandas[_matronId];
 
-
         require(matron.birthTime != 0);
-
 
         require(_isReadyToGiveBirth(matron));
 
-
         uint256 sireId = matron.siringWithId;
         Panda storage sire = pandas[sireId];
-
 
         uint16 parentGen = matron.generation;
         if (sire.generation > matron.generation) {
             parentGen = sire.generation;
         }
 
-
-
         uint256[2] memory childGenes = _childGenes;
 
         uint256 kittenId = 0;
-
 
         uint256 probability = (geneScience.getPureFromGene(matron.genes) + geneScience.getPureFromGene(sire.genes)) / 2 + _factors[0];
         if (probability >= (parentGen + 1) * _factors[1]) {
@@ -1076,30 +743,19 @@ contract PandaBreeding is PandaOwnership {
             Abortion(pandaIndexToOwner[_matronId], _matronId, sireId);
         }
 
-
-
-
-
-
-
         delete matron.siringWithId;
 
-
         pregnantPandas--;
-
-
 
         msg.sender.send(autoBirthFee);
 
         delete childOwner[_matronId];
-
 
         return kittenId;
     }
 }
 
 contract ClockAuctionBase {
-
 
     struct Auction {
 
@@ -1111,19 +767,14 @@ contract ClockAuctionBase {
 
         uint64 duration;
 
-
         uint64 startedAt;
 
         uint64 isGen0;
     }
 
-
     ERC721 public nonFungibleContract;
 
-
-
     uint256 public ownerCut;
-
 
     mapping (uint256 => Auction) tokenIdToAuction;
 
@@ -1131,37 +782,21 @@ contract ClockAuctionBase {
     event AuctionSuccessful(uint256 tokenId, uint256 totalPrice, address winner);
     event AuctionCancelled(uint256 tokenId);
 
-
-
-
     function _owns(address _claimant, uint256 _tokenId) internal view returns (bool) {
         return (nonFungibleContract.ownerOf(_tokenId) == _claimant);
     }
-
-
-
-
 
     function _escrow(address _owner, uint256 _tokenId) internal {
 
         nonFungibleContract.transferFrom(_owner, this, _tokenId);
     }
 
-
-
-
-
     function _transfer(address _receiver, uint256 _tokenId) internal {
 
         nonFungibleContract.transfer(_receiver, _tokenId);
     }
 
-
-
-
-
     function _addAuction(uint256 _tokenId, Auction _auction) internal {
-
 
         require(_auction.duration >= 1 minutes);
 
@@ -1175,14 +810,11 @@ contract ClockAuctionBase {
         );
     }
 
-
     function _cancelAuction(uint256 _tokenId, address _seller) internal {
         _removeAuction(_tokenId);
         _transfer(_seller, _tokenId);
         AuctionCancelled(_tokenId);
     }
-
-
 
     function _bid(uint256 _tokenId, uint256 _bidAmount)
         internal
@@ -1191,75 +823,39 @@ contract ClockAuctionBase {
 
         Auction storage auction = tokenIdToAuction[_tokenId];
 
-
-
-
-
         require(_isOnAuction(auction));
-
 
         uint256 price = _currentPrice(auction);
         require(_bidAmount >= price);
 
-
-
         address seller = auction.seller;
-
-
 
         _removeAuction(_tokenId);
 
-
         if (price > 0) {
-
-
 
             uint256 auctioneerCut = _computeCut(price);
             uint256 sellerProceeds = price - auctioneerCut;
 
-
-
-
-
-
-
-
-
             seller.transfer(sellerProceeds);
         }
 
-
-
-
-
         uint256 bidExcess = _bidAmount - price;
 
-
-
-
         msg.sender.transfer(bidExcess);
-
 
         AuctionSuccessful(_tokenId, price, msg.sender);
 
         return price;
     }
 
-
-
     function _removeAuction(uint256 _tokenId) internal {
         delete tokenIdToAuction[_tokenId];
     }
 
-
-
     function _isOnAuction(Auction storage _auction) internal view returns (bool) {
         return (_auction.startedAt > 0);
     }
-
-
-
-
 
     function _currentPrice(Auction storage _auction)
         internal
@@ -1267,9 +863,6 @@ contract ClockAuctionBase {
         returns (uint256)
     {
         uint256 secondsPassed = 0;
-
-
-
 
         if (now > _auction.startedAt) {
             secondsPassed = now - _auction.startedAt;
@@ -1283,10 +876,6 @@ contract ClockAuctionBase {
         );
     }
 
-
-
-
-
     function _computeCurrentPrice(
         uint256 _startingPrice,
         uint256 _endingPrice,
@@ -1298,25 +887,14 @@ contract ClockAuctionBase {
         returns (uint256)
     {
 
-
-
-
-
         if (_secondsPassed >= _duration) {
-
 
             return _endingPrice;
         } else {
 
-
             int256 totalPriceChange = int256(_endingPrice) - int256(_startingPrice);
 
-
-
-
             int256 currentPriceChange = totalPriceChange * int256(_secondsPassed) / int256(_duration);
-
-
 
             int256 currentPrice = int256(_startingPrice) + currentPriceChange;
 
@@ -1324,19 +902,12 @@ contract ClockAuctionBase {
         }
     }
 
-
-
     function _computeCut(uint256 _price) internal view returns (uint256) {
-
-
-
-
 
         return _price * ownerCut / 10000;
     }
 
 }
-
 
 contract Pausable is Ownable {
   event Pause();
@@ -1344,25 +915,21 @@ contract Pausable is Ownable {
 
   bool public paused = false;
 
-
   modifier whenNotPaused() {
     require(!paused);
     _;
   }
-
 
   modifier whenPaused {
     require(paused);
     _;
   }
 
-
   function pause() onlyOwner whenNotPaused returns (bool) {
     paused = true;
     Pause();
     return true;
   }
-
 
   function unpause() onlyOwner whenPaused returns (bool) {
     paused = false;
@@ -1373,16 +940,7 @@ contract Pausable is Ownable {
 
 contract ClockAuction is Pausable, ClockAuctionBase {
 
-
-
-
     bytes4 constant InterfaceSignature_ERC721 = bytes4(0x9a20483d);
-
-
-
-
-
-
 
     function ClockAuction(address _nftAddress, uint256 _cut) public {
         require(_cut <= 10000);
@@ -1393,10 +951,6 @@ contract ClockAuction is Pausable, ClockAuctionBase {
         nonFungibleContract = candidateContract;
     }
 
-
-
-
-
     function withdrawBalance() external {
         address nftAddress = address(nonFungibleContract);
 
@@ -1405,16 +959,8 @@ contract ClockAuction is Pausable, ClockAuctionBase {
             msg.sender == nftAddress
         );
 
-
         bool res = nftAddress.send(this.balance);
     }
-
-
-
-
-
-
-
 
     function createAuction(
         uint256 _tokenId,
@@ -1426,7 +972,6 @@ contract ClockAuction is Pausable, ClockAuctionBase {
         external
         whenNotPaused
     {
-
 
         require(_startingPrice == uint256(uint128(_startingPrice)));
         require(_endingPrice == uint256(uint128(_endingPrice)));
@@ -1445,9 +990,6 @@ contract ClockAuction is Pausable, ClockAuctionBase {
         _addAuction(_tokenId, auction);
     }
 
-
-
-
     function bid(uint256 _tokenId)
         external
         payable
@@ -1457,11 +999,6 @@ contract ClockAuction is Pausable, ClockAuctionBase {
         _bid(_tokenId, msg.value);
         _transfer(msg.sender, _tokenId);
     }
-
-
-
-
-
 
     function cancelAuction(uint256 _tokenId)
         external
@@ -1473,10 +1010,6 @@ contract ClockAuction is Pausable, ClockAuctionBase {
         _cancelAuction(_tokenId, seller);
     }
 
-
-
-
-
     function cancelAuctionWhenPaused(uint256 _tokenId)
         whenPaused
         onlyOwner
@@ -1486,8 +1019,6 @@ contract ClockAuction is Pausable, ClockAuctionBase {
         require(_isOnAuction(auction));
         _cancelAuction(_tokenId, auction.seller);
     }
-
-
 
     function getAuction(uint256 _tokenId)
         external
@@ -1511,8 +1042,6 @@ contract ClockAuction is Pausable, ClockAuctionBase {
         );
     }
 
-
-
     function getCurrentPrice(uint256 _tokenId)
         external
         view
@@ -1527,20 +1056,10 @@ contract ClockAuction is Pausable, ClockAuctionBase {
 
 contract SiringClockAuction is ClockAuction {
 
-
-
     bool public isSiringClockAuction = true;
-
 
     function SiringClockAuction(address _nftAddr, uint256 _cut) public
         ClockAuction(_nftAddr, _cut) {}
-
-
-
-
-
-
-
 
     function createAuction(
         uint256 _tokenId,
@@ -1551,7 +1070,6 @@ contract SiringClockAuction is ClockAuction {
     )
         external
     {
-
 
         require(_startingPrice == uint256(uint128(_startingPrice)));
         require(_endingPrice == uint256(uint128(_endingPrice)));
@@ -1570,10 +1088,6 @@ contract SiringClockAuction is ClockAuction {
         _addAuction(_tokenId, auction);
     }
 
-
-
-
-
     function bid(uint256 _tokenId)
         external
         payable
@@ -1583,7 +1097,6 @@ contract SiringClockAuction is ClockAuction {
 
         _bid(_tokenId, msg.value);
 
-
         _transfer(seller, _tokenId);
     }
 
@@ -1591,10 +1104,7 @@ contract SiringClockAuction is ClockAuction {
 
 contract SaleClockAuction is ClockAuction {
 
-
-
     bool public isSaleClockAuction = true;
-
 
     uint256 public gen0SaleCount;
     uint256[5] public lastGen0SalePrices;
@@ -1605,18 +1115,11 @@ contract SaleClockAuction is ClockAuction {
     uint256   CommonPandaIndex;
     uint256   RarePandaIndex;
 
-
     function SaleClockAuction(address _nftAddr, uint256 _cut) public
         ClockAuction(_nftAddr, _cut) {
             CommonPandaIndex = 1;
             RarePandaIndex   = 1;
     }
-
-
-
-
-
-
 
     function createAuction(
         uint256 _tokenId,
@@ -1627,7 +1130,6 @@ contract SaleClockAuction is ClockAuction {
     )
         external
     {
-
 
         require(_startingPrice == uint256(uint128(_startingPrice)));
         require(_endingPrice == uint256(uint128(_endingPrice)));
@@ -1656,7 +1158,6 @@ contract SaleClockAuction is ClockAuction {
         external
     {
 
-
         require(_startingPrice == uint256(uint128(_startingPrice)));
         require(_endingPrice == uint256(uint128(_endingPrice)));
         require(_duration == uint256(uint64(_duration)));
@@ -1674,8 +1175,6 @@ contract SaleClockAuction is ClockAuction {
         _addAuction(_tokenId, auction);
     }
 
-
-
     function bid(uint256 _tokenId)
         external
         payable
@@ -1684,7 +1183,6 @@ contract SaleClockAuction is ClockAuction {
         uint64 isGen0 = tokenIdToAuction[_tokenId].isGen0;
         uint256 price = _bid(_tokenId, msg.value);
         _transfer(msg.sender, _tokenId);
-
 
         if (isGen0 == 1) {
 
@@ -1742,8 +1240,6 @@ contract SaleClockAuctionERC20 is ClockAuction {
 
     event AuctionERC20Created(uint256 tokenId, uint256 startingPrice, uint256 endingPrice, uint256 duration, address erc20Contract);
 
-
-
     bool public isSaleClockAuctionERC20 = true;
 
     mapping (uint256 => address) public tokenIdToErc20Address;
@@ -1751,7 +1247,6 @@ contract SaleClockAuctionERC20 is ClockAuction {
     mapping (address => uint256) public erc20ContractsSwitcher;
 
     mapping (address => uint256) public balances;
-
 
     function SaleClockAuctionERC20(address _nftAddr, uint256 _cut) public
         ClockAuction(_nftAddr, _cut) {}
@@ -1764,11 +1259,6 @@ contract SaleClockAuctionERC20 is ClockAuction {
         erc20ContractsSwitcher[_erc20address] = _onoff;
     }
 
-
-
-
-
-
     function createAuction(
         uint256 _tokenId,
         address _erc20Address,
@@ -1779,7 +1269,6 @@ contract SaleClockAuctionERC20 is ClockAuction {
     )
         external
     {
-
 
         require(_startingPrice == uint256(uint128(_startingPrice)));
         require(_endingPrice == uint256(uint128(_endingPrice)));
@@ -1802,12 +1291,7 @@ contract SaleClockAuctionERC20 is ClockAuction {
         tokenIdToErc20Address[_tokenId] = _erc20Address;
     }
 
-
-
-
-
     function _addAuctionERC20(uint256 _tokenId, Auction _auction, address _erc20address) internal {
-
 
         require(_auction.duration >= 1 minutes);
 
@@ -1827,8 +1311,6 @@ contract SaleClockAuctionERC20 is ClockAuction {
         payable{
 
     }
-
-
 
     function bidERC20(uint256 _tokenId,uint256 _amount)
         external
@@ -1859,8 +1341,6 @@ contract SaleClockAuctionERC20 is ClockAuction {
         ERC20(_erc20Address).transfer(_to, balances[_erc20Address]);
     }
 
-
-
     function _bidERC20(address _erc20Address,address _buyerAddress, uint256 _tokenId, uint256 _bidAmount)
         internal
         returns (uint256)
@@ -1868,36 +1348,21 @@ contract SaleClockAuctionERC20 is ClockAuction {
 
         Auction storage auction = tokenIdToAuction[_tokenId];
 
-
-
-
-
         require(_isOnAuction(auction));
 
         require (_erc20Address != address(0) && _erc20Address == tokenIdToErc20Address[_tokenId]);
 
-
-
         uint256 price = _currentPrice(auction);
         require(_bidAmount >= price);
 
-
-
         address seller = auction.seller;
-
-
 
         _removeAuction(_tokenId);
 
-
         if (price > 0) {
-
-
 
             uint256 auctioneerCut = _computeCut(price);
             uint256 sellerProceeds = price - auctioneerCut;
-
-
 
             require(ERC20(_erc20Address).transferFrom(_buyerAddress,seller,sellerProceeds));
             if (auctioneerCut > 0){
@@ -1905,7 +1370,6 @@ contract SaleClockAuctionERC20 is ClockAuction {
                 balances[_erc20Address] += auctioneerCut;
             }
         }
-
 
         AuctionSuccessful(_tokenId, price, msg.sender);
 
@@ -1915,19 +1379,10 @@ contract SaleClockAuctionERC20 is ClockAuction {
 
 contract PandaAuction is PandaBreeding {
 
-
-
-
-
-
-
-
     function setSaleAuctionAddress(address _address) external onlyCEO {
         SaleClockAuction candidateContract = SaleClockAuction(_address);
 
-
         require(candidateContract.isSaleClockAuction());
-
 
         saleAuction = candidateContract;
     }
@@ -1935,26 +1390,18 @@ contract PandaAuction is PandaBreeding {
     function setSaleAuctionERC20Address(address _address) external onlyCEO {
         SaleClockAuctionERC20 candidateContract = SaleClockAuctionERC20(_address);
 
-
         require(candidateContract.isSaleClockAuctionERC20());
-
 
         saleAuctionERC20 = candidateContract;
     }
 
-
-
     function setSiringAuctionAddress(address _address) external onlyCEO {
         SiringClockAuction candidateContract = SiringClockAuction(_address);
 
-
         require(candidateContract.isSiringClockAuction());
-
 
         siringAuction = candidateContract;
     }
-
-
 
     function createSaleAuction(
         uint256 _pandaId,
@@ -1966,15 +1413,10 @@ contract PandaAuction is PandaBreeding {
         whenNotPaused
     {
 
-
-
         require(_owns(msg.sender, _pandaId));
-
-
 
         require(!isPregnant(_pandaId));
         _approve(_pandaId, saleAuction);
-
 
         saleAuction.createAuction(
             _pandaId,
@@ -1984,8 +1426,6 @@ contract PandaAuction is PandaBreeding {
             msg.sender
         );
     }
-
-
 
     function createSaleAuctionERC20(
         uint256 _pandaId,
@@ -1998,15 +1438,10 @@ contract PandaAuction is PandaBreeding {
         whenNotPaused
     {
 
-
-
         require(_owns(msg.sender, _pandaId));
-
-
 
         require(!isPregnant(_pandaId));
         _approve(_pandaId, saleAuctionERC20);
-
 
         saleAuctionERC20.createAuction(
             _pandaId,
@@ -2022,9 +1457,6 @@ contract PandaAuction is PandaBreeding {
         saleAuctionERC20.erc20ContractSwitch(_erc20address,_onoff);
     }
 
-
-
-
     function createSiringAuction(
         uint256 _pandaId,
         uint256 _startingPrice,
@@ -2035,12 +1467,9 @@ contract PandaAuction is PandaBreeding {
         whenNotPaused
     {
 
-
-
         require(_owns(msg.sender, _pandaId));
         require(isReadyToBreed(_pandaId));
         _approve(_pandaId, siringAuction);
-
 
         siringAuction.createAuction(
             _pandaId,
@@ -2050,10 +1479,6 @@ contract PandaAuction is PandaBreeding {
             msg.sender
         );
     }
-
-
-
-
 
     function bidOnSiringAuction(
         uint256 _sireId,
@@ -2068,17 +1493,12 @@ contract PandaAuction is PandaBreeding {
         require(isReadyToBreed(_matronId));
         require(_canBreedWithViaAuction(_matronId, _sireId));
 
-
         uint256 currentPrice = siringAuction.getCurrentPrice(_sireId);
         require(msg.value >= currentPrice + autoBirthFee);
-
 
         siringAuction.bid.value(msg.value - autoBirthFee)(_sireId);
         _breedWith(uint32(_matronId), uint32(_sireId), msg.sender);
     }
-
-
-
 
     function withdrawAuctionBalances() external onlyCLevel {
         saleAuction.withdrawBalance();
@@ -2093,20 +1513,11 @@ contract PandaAuction is PandaBreeding {
 
 contract PandaMinting is PandaAuction {
 
-
-
     uint256 public constant GEN0_CREATION_LIMIT = 45000;
-
 
     uint256 public constant GEN0_STARTING_PRICE = 100 finney;
     uint256 public constant GEN0_AUCTION_DURATION = 1 days;
     uint256 public constant OPEN_PACKAGE_PRICE = 10 finney;
-
-
-
-
-
-
 
     function createWizzPanda(uint256[2] _genes, uint256 _generation, address _owner) external onlyCOO {
         address pandaOwner = _owner;
@@ -2116,9 +1527,6 @@ contract PandaMinting is PandaAuction {
 
         _createPanda(0, 0, _generation, _genes, pandaOwner);
     }
-
-
-
 
     function createPanda(uint256[2] _genes,uint256 _generation,uint256 _type)
         external
@@ -2131,35 +1539,8 @@ contract PandaMinting is PandaAuction {
         saleAuction.createPanda(kittenId,_type);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     function createGen0Auction(uint256 _pandaId) external onlyCOO {
         require(_owns(msg.sender, _pandaId));
-
 
         _approve(_pandaId, saleAuction);
 
@@ -2172,16 +1553,12 @@ contract PandaMinting is PandaAuction {
         );
     }
 
-
-
     function _computeNextGen0Price() internal view returns(uint256) {
         uint256 avePrice = saleAuction.averageGen0SalePrice();
-
 
         require(avePrice == uint256(uint128(avePrice)));
 
         uint256 nextPrice = avePrice + (avePrice / 2);
-
 
         if (nextPrice < GEN0_STARTING_PRICE) {
             nextPrice = GEN0_STARTING_PRICE;
@@ -2193,65 +1570,17 @@ contract PandaMinting is PandaAuction {
 
 contract PandaCore is PandaMinting {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     address public newContractAddress;
-
 
     function PandaCore() public {
 
         paused = true;
 
-
         ceoAddress = msg.sender;
-
 
         cooAddress = msg.sender;
 
-
-
-
-
-
-
     }
-
 
     function init() external onlyCEO whenPaused {
 
@@ -2263,21 +1592,11 @@ contract PandaCore is PandaMinting {
        _createPanda(0, 0, 0, _genes, address(0));
     }
 
-
-
-
-
-
-
     function setNewAddress(address _v2Address) external onlyCEO whenPaused {
 
         newContractAddress = _v2Address;
         ContractUpgrade(_v2Address);
     }
-
-
-
-
 
     function() external payable {
         require(
@@ -2285,8 +1604,6 @@ contract PandaCore is PandaMinting {
             msg.sender == address(siringAuction)
         );
     }
-
-
 
     function getPanda(uint256 _id)
         external
@@ -2305,7 +1622,6 @@ contract PandaCore is PandaMinting {
     ) {
         Panda storage kit = pandas[_id];
 
-
         isGestating = (kit.siringWithId != 0);
         isReady = (kit.cooldownEndBlock <= block.number);
         cooldownIndex = uint256(kit.cooldownIndex);
@@ -2318,21 +1634,14 @@ contract PandaCore is PandaMinting {
         genes = kit.genes;
     }
 
-
-
-
-
-
     function unpause() public onlyCEO whenPaused {
         require(saleAuction != address(0));
         require(siringAuction != address(0));
         require(geneScience != address(0));
         require(newContractAddress == address(0));
 
-
         super.unpause();
     }
-
 
     function withdrawBalance() external onlyCFO {
         uint256 balance = this.balance;

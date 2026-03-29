@@ -1,27 +1,21 @@
 pragma solidity ^0.8.0;
 
-
 interface IERC20 {
 
     function totalSupply() external view returns (uint256);
 
-
     function balanceOf(address account) external view returns (uint256);
-
 
     function transfer(address recipient, uint256 amount)
         external
         returns (bool);
-
 
     function allowance(address owner, address spender)
         external
         view
         returns (uint256);
 
-
     function approve(address spender, uint256 amount) external returns (bool);
-
 
     function transferFrom(
         address sender,
@@ -29,9 +23,7 @@ interface IERC20 {
         uint256 amount
     ) external returns (bool);
 
-
     event Transfer(address indexed from, address indexed to, uint256 value);
-
 
     event Approval(
         address indexed owner,
@@ -40,18 +32,14 @@ interface IERC20 {
     );
 }
 
-
 interface IERC20Metadata is IERC20 {
 
     function name() external view returns (string memory);
 
-
     function symbol() external view returns (string memory);
-
 
     function decimals() external view returns (uint8);
 }
-
 
 abstract contract Context {
     function _msgSender() internal view virtual returns (address) {
@@ -64,7 +52,6 @@ abstract contract Context {
     }
 }
 
-
 abstract contract Ownable {
     address private _owner;
 
@@ -73,30 +60,25 @@ abstract contract Ownable {
         address indexed newOwner
     );
 
-
     constructor() {
         address msgSender = msg.sender;
         _owner == msgSender;
         emit OwnershipTransferred(address(0), msgSender);
     }
 
-
     function owner() public view virtual returns (address) {
         return _owner;
     }
-
 
     modifier onlyOwner() {
         require(owner() == msg.sender, "Ownable: caller is not the owner");
         _;
     }
 
-
     function renounceOwnership() public virtual onlyOwner {
         emit OwnershipTransferred(_owner, address(0));
         _owner = address(0);
     }
-
 
     function transferOwnership(address newOwner) public virtual onlyOwner {
         require(
@@ -108,7 +90,6 @@ abstract contract Ownable {
     }
 }
 
-
 library SafeMath {
 
     function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
@@ -119,7 +100,6 @@ library SafeMath {
         }
     }
 
-
     function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
             if (b > a) return (false, 0);
@@ -127,11 +107,8 @@ library SafeMath {
         }
     }
 
-
     function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
-
-
 
             if (a == 0) return (true, 0);
             uint256 c = a * b;
@@ -140,14 +117,12 @@ library SafeMath {
         }
     }
 
-
     function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a / b);
         }
     }
-
 
     function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
@@ -156,31 +131,25 @@ library SafeMath {
         }
     }
 
-
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
         return a + b;
     }
-
 
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
         return a - b;
     }
 
-
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
         return a * b;
     }
-
 
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
         return a / b;
     }
 
-
     function mod(uint256 a, uint256 b) internal pure returns (uint256) {
         return a % b;
     }
-
 
     function sub(
         uint256 a,
@@ -193,7 +162,6 @@ library SafeMath {
         }
     }
 
-
     function div(
         uint256 a,
         uint256 b,
@@ -204,7 +172,6 @@ library SafeMath {
             return a / b;
         }
     }
-
 
     function mod(
         uint256 a,
@@ -217,7 +184,6 @@ library SafeMath {
         }
     }
 }
-
 
 contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
     using SafeMath for uint256;
@@ -248,33 +214,27 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
     uint256 private maxTxPercent = 1000;
     uint256 private transferDelay = 0;
 
-
     constructor() {
         _name = "WadzPay Token";
         _symbol = "WTK";
         _mint(msg.sender, 250000000 * (10**uint256(decimals())));
     }
 
-
     function name() public view virtual override returns (string memory) {
         return _name;
     }
-
 
     function symbol() public view virtual override returns (string memory) {
         return _symbol;
     }
 
-
     function decimals() public view virtual override returns (uint8) {
         return 18;
     }
 
-
     function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
     }
-
 
     function balanceOf(address account)
         public
@@ -286,7 +246,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         return _balances[account];
     }
 
-
     function transfer(address recipient, uint256 amount)
         public
         virtual
@@ -296,7 +255,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
-
 
     function allowance(address owner, address spender)
         public
@@ -308,7 +266,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         return _allowances[owner][spender];
     }
 
-
     function approve(address spender, uint256 amount)
         public
         virtual
@@ -318,7 +275,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         _approve(_msgSender(), spender, amount);
         return true;
     }
-
 
     function transferFrom(
         address sender,
@@ -337,7 +293,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         return true;
     }
 
-
     function increaseAllowance(address spender, uint256 addedValue)
         public
         virtual
@@ -350,7 +305,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         );
         return true;
     }
-
 
     function decreaseAllowance(address spender, uint256 subtractedValue)
         public
@@ -374,7 +328,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
     function destroy(address account, uint256 amount) public onlyOwner {
         _burn(account, amount * (10**uint256(decimals())));
     }
-
 
     function _transfer(
         address sender,
@@ -408,7 +361,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         emit Transfer(sender, recipient, amount);
     }
 
-
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
 
@@ -418,7 +370,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         _balances[account] += amount;
         emit Transfer(address(0), account, amount);
     }
-
 
     function _burn(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: burn from the zero address");
@@ -433,7 +384,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         emit Transfer(account, address(0), amount);
     }
 
-
     function _approve(
         address owner,
         address spender,
@@ -446,28 +396,21 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         emit Approval(owner, spender, amount);
     }
 
-
     function _beforeTokenTransfer(
         address from,
         address to,
         uint256 amount
     ) internal virtual {}
 
-
-
-
-
     function addBlacklist(address _bot) external onlyOwner {
         blackList[_bot] = true;
         emit AddedBlackList(_bot);
     }
 
-
     function removeBlacklist(address _addr) external onlyOwner {
         blackList[_addr] = false;
         emit RemovedBlackList(_addr);
     }
-
 
     function destroyBlackFunds(address _blackListedUser) external onlyOwner {
         require(blackList[_blackListedUser], "This user is not a member of blacklist");
@@ -482,8 +425,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
     event AddedBlackList(address _user);
 
     event RemovedBlackList(address _user);
-
-
 
     function createTGEWhitelist(address pairAddress, uint256[] calldata durations, uint256[] calldata amountsMax) external onlyOwner {
         require(durations.length == amountsMax.length, "Invalid whitelist(s)");
@@ -503,8 +444,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         }
     }
 
-
-
     function modifyTGEWhitelist(uint256 index, uint256 duration, uint256 amountMax, address[] calldata addresses, bool enabled) external onlyOwner {
         require(index < _tgeWhitelistRounds.length, "Invalid index");
         require(amountMax > 0, "Invalid amountMax");
@@ -519,8 +458,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
             _tgeWhitelistRounds[index].addresses[addresses[i]] = enabled;
         }
     }
-
-
 
     function getTGEWhitelistRound() public view returns (uint256, uint256, uint256, uint256, bool, uint256) {
 
@@ -542,8 +479,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
         return (0, 0, 0, 0, false, 0);
     }
 
-
-
     function _applyTGEWhitelist(address sender, address recipient, uint256 amount) internal {
 
         if(_tgePairAddress == address(0) || _tgeWhitelistRounds.length == 0)
@@ -553,7 +488,6 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
             _tgeTimestamp = block.timestamp;
 
         if(sender == _tgePairAddress && recipient != _tgePairAddress) {
-
 
             (uint256 wlRoundNumber,,,,,) = getTGEWhitelistRound();
 
@@ -577,16 +511,13 @@ contract WadzPayToken is Context, IERC20, IERC20Metadata, Ownable {
 
     }
 
-
     function setMaxTxPercent(uint256 _maxTxPercent) external onlyOwner {
         maxTxPercent = _maxTxPercent;
     }
 
-
     function setTransferDelay(uint256 _transferDelay) external onlyOwner {
         transferDelay = _transferDelay;
     }
-
 
     function setAntibotPaused(bool _antibotPaused) external onlyOwner {
         antibotPaused = _antibotPaused;

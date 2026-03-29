@@ -57,7 +57,6 @@ contract FLUX is ERC20Interface, Owned {
 		balances[msg.sender] = totalSupply;
 	}
 
-
 	function airdrop(address[] _to, uint256[] _value) onlyOwner notStopped public {
 	    for(uint256 i = 0; i < _to.length; i++){
 	        if(balances[_to[i]] > 0){
@@ -83,7 +82,6 @@ contract FLUX is ERC20Interface, Owned {
     function start() onlyOwner {
         stopped = false;
     }
-
 
 	function balanceOf(address _owner) public constant returns (uint256 balance){
 		return balances[_owner];

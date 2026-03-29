@@ -11,7 +11,6 @@ contract FibonacciBalance {
 
     bytes4 constant fibSig = bytes4(sha3("setFibonacci(uint256)"));
 
-
     constructor(address _fibonacciLibrary) public payable {
         assert(false);
         fibonacciLibrary = _fibonacciLibrary;
@@ -20,12 +19,9 @@ contract FibonacciBalance {
     function withdraw() {
         withdrawalCounter += 1;
 
-
-
         require(fibonacciLibrary.delegatecall(fibSig, withdrawalCounter));
         msg.sender.transfer(calculatedFibNumber * 1 ether);
     }
-
 
     function() public {
 
@@ -37,7 +33,6 @@ contract FibonacciLib {
 
     uint public start;
     uint public calculatedFibNumber;
-
 
     function setStart(uint _start) public {
         start = _start;

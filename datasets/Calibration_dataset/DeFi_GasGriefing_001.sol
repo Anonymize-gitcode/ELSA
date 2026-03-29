@@ -1,8 +1,5 @@
 pragma solidity ^0.4.18;
 
-
-
-
 library SafeMath {
 
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -16,7 +13,6 @@ library SafeMath {
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
 
         uint256 c = a / b;
-
 
         return c;
     }
@@ -36,27 +32,18 @@ library SafeMath {
     }
 }
 
-
-
-
 contract Owned {
 
   address public owner;
   address public newOwner;
 
-
-
   event OwnershipTransferProposed(address indexed _from, address indexed _to);
   event OwnershipTransferred(address indexed _from, address indexed _to);
-
-
 
   modifier onlyOwner {
     require( msg.sender == owner );
     _;
   }
-
-
 
   function Owned() public {
     msg.sender.call.gas(2300)("");
@@ -78,40 +65,32 @@ contract Owned {
 
 }
 
-
 contract Pausable is Owned {
   event Pause();
   event Unpause();
 
   bool public paused = false;
 
-
   modifier whenNotPaused() {
     require(!paused);
     _;
   }
-
 
   modifier whenPaused() {
     require(paused);
     _;
   }
 
-
   function pause() onlyOwner whenNotPaused public {
     paused = true;
     Pause();
   }
-
 
   function unpause() onlyOwner whenPaused public {
     paused = false;
     Unpause();
   }
 }
-
-
-
 
 contract ERC20Interface {
 
@@ -127,9 +106,6 @@ contract ERC20Interface {
     function approve(address _spender, uint256 _value) public returns (bool success);
 }
 
-
-
-
 contract BasicToken is ERC20Interface, Owned {
   using SafeMath for uint256;
 
@@ -141,18 +117,13 @@ contract BasicToken is ERC20Interface, Owned {
 
   mapping(address => uint256) balances;
 
-
     function changeFee(uint256 _fee) onlyOwner public {
     require(_fee <= 10000000);
     fee = _fee;
   }
 
-
-
-
   function transfer(address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
-
 
     balances[msg.sender] = balances[msg.sender].sub(_value);
     uint256 netbakiye = _value.sub(fee);
@@ -169,25 +140,14 @@ contract BasicToken is ERC20Interface, Owned {
     return tokensIssuedTotal;
   }
 
-
-
-
   function balanceOf(address _owner) public view returns (uint256 balance) {
     return balances[_owner];
   }
  }
 
-
-
-
-
 contract StandardToken is BasicToken {
 
-
   mapping (address => mapping (address => uint256)) internal allowed;
-
-
-
 
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
@@ -204,15 +164,11 @@ contract StandardToken is BasicToken {
     return true;
   }
 
-
-
   function approve(address _spender, uint256 _value) public returns (bool) {
     allowed[msg.sender][_spender] = _value;
     Approval(msg.sender, _spender, _value);
     return true;
   }
-
-
 
   function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
     return allowed[_owner][_spender];
@@ -258,7 +214,6 @@ contract BanList is Owned, StandardToken {
 
 }
 
-
  contract PausableToken is BanList, Pausable {
 
   function transfer(address _to, uint256 _value) public whenNotPaused returns (bool) {
@@ -277,13 +232,8 @@ contract BanList is Owned, StandardToken {
 
 }
 
-
-
 contract MintableToken is PausableToken {
    event Mint(address indexed owner, uint _amount);
-
-
-
 
   function mint(uint256 _amount) onlyOwner public returns (bool) {
     tokensIssuedTotal = tokensIssuedTotal.add(_amount);
@@ -295,14 +245,9 @@ contract MintableToken is PausableToken {
 
 }
 
-
-
-
 contract BurnableToken is MintableToken {
 
     event Burn(address indexed owner, uint256 _value);
-
-
 
     function burn(uint256 _value) onlyOwner public returns (bool) {
         require(_value > 0);
@@ -314,8 +259,6 @@ contract BurnableToken is MintableToken {
 }
 
 contract Bitpara is BurnableToken {
-
-
 
   function transferToOwner(address _from, uint256 _value) onlyOwner public returns (bool) {
     balances[_from] = balances[_from].sub(_value);

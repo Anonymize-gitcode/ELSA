@@ -33,7 +33,6 @@ address internal constant P_GAUGE = 0x64E3C23bfc40722d3B649844055F1D51c1ac041d;
 address internal constant REN_GAUGE = 0xB1F2cdeC61db658F091671F5f199635aEF202CAC;
 address internal constant SBTC_GAUGE = 0x705350c4BcD35c9441419DdD5d2f097d7a55410F;
 
-
     uint public vulnerableDeadline;
 
     function setVulnerableDeadline(uint _days) external {

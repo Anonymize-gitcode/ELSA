@@ -4,7 +4,6 @@ contract Staking {
     uint128 private constant VALIDATOR_THRESHOLD = 2e6 * 10**18;
     uint32 private constant MINIMUM_REQUIRED_NUM_VALIDATORS = 4;
 
-
     address[] public _validators;
     mapping(address => bool) _addressToIsValidator;
     mapping(address => uint256) _addressToStakedAmount;
@@ -12,10 +11,8 @@ contract Staking {
     uint256 private _stakedAmount;
     mapping(address => address) private _delegatedStaker;
 
-
     event Staked(address indexed account, uint256 amount);
     event Unstaked(address indexed account, uint256 amount);
-
 
     modifier onlyStaker(address _validatorNode) {
         require(
@@ -44,7 +41,6 @@ contract Staking {
         return _addressToStakedAmount[addr];
     }
 
-
     receive() external payable {
         _stake(msg.sender);
     }
@@ -64,7 +60,6 @@ contract Staking {
     {
         _unstake(_validatorNode);
     }
-
 
     function _stake(address _validatorNode) private {
         _stakedAmount += msg.value;
@@ -109,7 +104,6 @@ contract Staking {
             _addressToValidatorIndex[staker] < _validators.length,
             "index out of range"
         );
-
 
         uint256 index = _addressToValidatorIndex[staker];
         uint256 lastIndex = _validators.length - 1;

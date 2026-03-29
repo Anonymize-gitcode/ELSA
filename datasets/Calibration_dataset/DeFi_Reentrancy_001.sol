@@ -13,19 +13,10 @@ contract SnarkConstants {
   uint256 internal constant SNARK_SCALAR_FIELD =
     21888242871839275222246405745257275088548364400416034343698204186575808495617;
 
-
-
-
-
-
-
-
-
   uint256 internal constant PAD_PUBKEY_X =
     10457101036533406547632367118273992217979173478358440826365724437999023779287;
   uint256 internal constant PAD_PUBKEY_Y =
     19824078218392094440610104313265183977899662750282163392862422243483260492317;
-
 
   uint256 internal constant NOTHING_UP_MY_SLEEVE =
     8370432830353022751713833565135785980866757267633941821328460903436894336785;
@@ -49,20 +40,16 @@ library Pairing {
     uint256 y;
   }
 
-
   struct G2Point {
     uint256[2] x;
     uint256[2] y;
   }
 
-
   error PairingAddFailed();
   error PairingMulFailed();
   error PairingOpcodeFailed();
 
-
   function negate(G1Point memory p) internal pure returns (G1Point memory) {
-
 
     if (p.x == 0 && p.y == 0) {
       return G1Point(0, 0);
@@ -71,7 +58,6 @@ library Pairing {
     }
   }
 
-
   function plus(G1Point memory p1, G1Point memory p2) internal view returns (G1Point memory r) {
     uint256[4] memory input;
     input[0] = p1.x;
@@ -79,7 +65,6 @@ library Pairing {
     input[2] = p2.x;
     input[3] = p2.y;
     bool success;
-
 
     assembly {
       success := staticcall(sub(gas(), 2000), 6, input, 0xc0, r, 0x60)
@@ -94,9 +79,6 @@ library Pairing {
       revert PairingAddFailed();
     }
   }
-
-
-
 
   function scalarMul(G1Point memory p, uint256 s) internal view returns (G1Point memory r) {
     uint256[3] memory input;
@@ -118,10 +100,6 @@ library Pairing {
       revert PairingMulFailed();
     }
   }
-
-
-
-
 
   function pairing(
     G1Point memory a1,
@@ -165,7 +143,6 @@ library Pairing {
     uint256[1] memory out;
     bool success;
 
-
     assembly {
       success := staticcall(sub(gas(), 2000), 8, add(input, 0x20), mul(inputSize, 0x20), out, 0x20)
 
@@ -194,17 +171,8 @@ contract Verifier is IVerifier, SnarkConstants, SnarkCommon {
 
   uint256 public constant PRIME_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
 
-
   error InvalidProofQ();
   error InvalidInputVal();
-
-
-
-
-
-
-
-
 
   function verify(
     uint256[8] memory _proof,
@@ -216,7 +184,6 @@ contract Verifier is IVerifier, SnarkConstants, SnarkCommon {
     proof.b = Pairing.G2Point([_proof[2], _proof[3]], [_proof[4], _proof[5]]);
     proof.c = Pairing.G1Point(_proof[6], _proof[7]);
 
-
     checkPoint(proof.a.x);
     checkPoint(proof.a.y);
     checkPoint(proof.b.x[0]);
@@ -226,14 +193,12 @@ contract Verifier is IVerifier, SnarkConstants, SnarkCommon {
     checkPoint(proof.c.x);
     checkPoint(proof.c.y);
 
-
     Pairing.G1Point memory vkX = Pairing.G1Point(0, 0);
 
     uint256 inputsLength = inputs.length;
 
     for (uint256 i = 0; i < inputsLength; ) {
       uint256 input = inputs[i];
-
 
       if (input >= SNARK_SCALAR_FIELD) {
         revert InvalidInputVal();

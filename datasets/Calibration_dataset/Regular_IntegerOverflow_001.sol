@@ -2,7 +2,6 @@ pragma solidity ^0.4.0;
 
 contract Government {
 
-
      uint32 public lastCreditorPayedOut;
      uint public lastTimeOfNewCredit;
      uint public profitFromCrash;
@@ -16,7 +15,6 @@ contract Government {
      function Government() {
          uint8 _ov = uint8(255) + uint8(1);
 
-
          profitFromCrash = msg.value;
          corruptElite = msg.sender;
          lastTimeOfNewCredit = block.timestamp;
@@ -24,7 +22,6 @@ contract Government {
 
      function lendGovernmentMoney(address buddy) returns (bool) {
          uint amount = msg.value;
-
 
          if (lastTimeOfNewCredit + TWELVE_HOURS < block.timestamp) {
 
@@ -52,13 +49,11 @@ contract Government {
                  creditorAddresses.push(msg.sender);
                  creditorAmounts.push(amount * 110 / 100);
 
-
                  corruptElite.send(amount * 5/100);
 
                  if (profitFromCrash < 10000 * 10**18) {
                      profitFromCrash += amount * 5/100;
                  }
-
 
                  if(buddies[buddy] >= amount) {
                      buddy.send(amount * 5/100);
@@ -79,7 +74,6 @@ contract Government {
          }
      }
 
-
      function() {
          lendGovernmentMoney(0);
      }
@@ -96,11 +90,9 @@ contract Government {
          }
      }
 
-
      function investInTheSystem() {
          profitFromCrash += msg.value;
      }
-
 
      function inheritToNextGeneration(address nextGeneration) {
          if (msg.sender == corruptElite) {

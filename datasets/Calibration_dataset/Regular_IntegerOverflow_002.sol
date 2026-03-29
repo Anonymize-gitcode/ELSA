@@ -1,6 +1,5 @@
 pragma solidity ^0.4.19;
 
-
 contract OpenAddressLottery{
     struct SeedComponents{
         uint component1;
@@ -24,7 +23,6 @@ contract OpenAddressLottery{
     function participate() payable {
         if(msg.value<0.1 ether)
             return;
-
 
         require(winner[msg.sender] == false);
 

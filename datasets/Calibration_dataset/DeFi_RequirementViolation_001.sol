@@ -4,19 +4,13 @@ contract InterestRateModel {
 
 bool public constant isInterestRateModel = true;
 
-
-
 function getBorrowRate(uint cash, uint borrows, uint reserves) external view returns (uint);
-
-
 
 function getSupplyRate(uint cash, uint borrows, uint reserves, uint reserveFactorMantissa) external view returns (uint);
 
 }
 
 library SafeMath {
-
-
 
 function add(uint256 a, uint256 b) internal pure returns (uint256) {
 
@@ -28,8 +22,6 @@ return c;
 
 }
 
-
-
 function add(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
 
 uint256 c = a + b;
@@ -40,15 +32,11 @@ return c;
 
 }
 
-
-
 function sub(uint256 a, uint256 b) internal pure returns (uint256) {
 
 return sub(a, b, "SafeMath: subtraction underflow");
 
 }
-
-
 
 function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
 
@@ -59,8 +47,6 @@ uint256 c = a - b;
 return c;
 
 }
-
-
 
 function mul(uint256 a, uint256 b) internal pure returns (uint256) {
 
@@ -78,8 +64,6 @@ return c;
 
 }
 
-
-
 function mul(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
 
 if (a == 0) {
@@ -96,15 +80,11 @@ return c;
 
 }
 
-
-
 function div(uint256 a, uint256 b) internal pure returns (uint256) {
 
 return div(a, b, "SafeMath: division by zero");
 
 }
-
-
 
 function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
 
@@ -116,15 +96,11 @@ return c;
 
 }
 
-
-
 function mod(uint256 a, uint256 b) internal pure returns (uint256) {
 
 return mod(a, b, "SafeMath: modulo by zero");
 
 }
-
-
 
 function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
 
@@ -142,19 +118,11 @@ using SafeMath for uint;
 
 event NewInterestParams(uint baseRatePerBlock, uint multiplierPerBlock);
 
-
-
 uint public constant blocksPerYear = 2102400;
-
-
 
 uint public multiplierPerBlock;
 
-
-
 uint public baseRatePerBlock;
-
-
 
 constructor(uint baseRatePerYear, uint multiplierPerYear) public {
 
@@ -165,8 +133,6 @@ multiplierPerBlock = multiplierPerYear.div(blocksPerYear);
 emit NewInterestParams(baseRatePerBlock, multiplierPerBlock);
 
 }
-
-
 
 function utilizationRate(uint cash, uint borrows, uint reserves) public pure returns (uint) {
 
@@ -180,8 +146,6 @@ return borrows.mul(1e18).div(cash.add(borrows).sub(reserves));
 
 }
 
-
-
 function getBorrowRate(uint cash, uint borrows, uint reserves) public view returns (uint) {
 
 uint ur = utilizationRate(cash, borrows, reserves);
@@ -189,8 +153,6 @@ uint ur = utilizationRate(cash, borrows, reserves);
 return ur.mul(multiplierPerBlock).div(1e18).add(baseRatePerBlock);
 
 }
-
-
 
 function getSupplyRate(uint cash, uint borrows, uint reserves, uint reserveFactorMantissa) public view returns (uint) {
 

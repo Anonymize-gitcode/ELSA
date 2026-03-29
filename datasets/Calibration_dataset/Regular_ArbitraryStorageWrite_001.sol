@@ -1,7 +1,5 @@
 pragma solidity ^0.4.24;
 
-
-
  contract Wallet {
      address creator;
 
@@ -27,8 +25,6 @@ pragma solidity ^0.4.24;
 
          msg.sender.transfer(balances[msg.sender]);
      }
-
-
 
      function migrateTo(address to) public {
          require(creator == msg.sender);

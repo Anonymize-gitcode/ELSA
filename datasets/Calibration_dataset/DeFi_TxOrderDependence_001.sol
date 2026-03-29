@@ -31,7 +31,6 @@ address internal constant MASTER_CHEF = 0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888
 
     function transfer(address to, uint amount) external {
 
-
         balances[msg.sender] -= amount;
         balances[to] += amount;
     }

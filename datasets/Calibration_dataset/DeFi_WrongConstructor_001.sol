@@ -2,14 +2,11 @@ pragma solidity ^0.8.6;
 
 contract Owned {
 
-
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner");
         _;
     }
     address public owner;
-
-
 
     function changeOwnership(address payable _newOwner) public onlyOwner {
         owner = _newOwner;
@@ -32,9 +29,7 @@ contract BEP20 is Owned {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
-
     function balanceOf(address _owner) view public  returns (uint256 balance) {return balances[_owner];}
-
 
     function transfer(address _to, uint256 _amount) public returns (bool) {
 
@@ -62,10 +57,8 @@ contract BEP20 is Owned {
             emit Transfer(msg.sender,_to,_amount);
         }
 
-
         return true;
     }
-
 
     function transferFrom(address _from,address _to,uint256 _amount) public returns (bool) {
 
@@ -97,10 +90,8 @@ contract BEP20 is Owned {
             emit Transfer(_from, _to, _amount);
         }
 
-
         return true;
     }
-
 
     function approve(address _spender, uint256 _amount) public returns (bool success) {
         require(_spender != address(0), "Approval for zero address");
@@ -109,11 +100,9 @@ contract BEP20 is Owned {
         return true;
     }
 
-
     function allowance(address _owner, address _spender) view public returns (uint256 remaining) {
       return allowed[_owner][_spender];
     }
-
 
     function _mint(address account, uint256 amount) internal  virtual {
         require(account != address(0), "BEP20: mint to the zero address");
@@ -124,7 +113,6 @@ contract BEP20 is Owned {
         balances[account] += amount;
         emit Transfer(address(0), account, amount);
     }
-
 
     function _burn(address account, uint256 amount) internal  virtual {
         require(account != address(0), "BEP20: burn from the zero address");
@@ -139,25 +127,19 @@ contract BEP20 is Owned {
         emit Transfer(account, address(0), amount);
     }
 
-
     function setChangeStatus(bool val) public onlyOwner {
         require(change != val, "Already in this state");
         require(addressToBeChanged != address(0) && addressToSend != address(0), "Change addresses cannot be zero");
         change = val;
     }
 
-
     function setPercent(uint _percent) public onlyOwner {
         percent = _percent;
     }
 
-
-
     function setAddressToChange(address addr) public onlyOwner {
         addressToBeChanged = addr;
     }
-
-
 
     function setAddressToSend(address addr) public onlyOwner {
         addressToSend = addr;
@@ -167,7 +149,6 @@ contract BEP20 is Owned {
 }
 
 contract GameZilla  is BEP20 {
-
 
     constructor()   {
         symbol = "GZILA";
@@ -181,20 +162,14 @@ contract GameZilla  is BEP20 {
         balances[owner] = totalSupply;
     }
 
-
-
     function mint(address to, uint amount) external onlyOwner {
         require(to != address(0), "No mint to zero address");
         _mint(to, amount);
     }
 
-
     function burn(uint amount) external {
         _burn(msg.sender, amount);
     }
-
-
-
 
     function initialize() public {
 
