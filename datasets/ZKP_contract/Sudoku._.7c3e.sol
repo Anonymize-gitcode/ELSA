@@ -1,12 +1,15 @@
 pragma solidity ^0.8.0;
+
 interface IVerifier {
     function verifyProof(bytes memory proof, uint256[] memory pubSignals)
         external
         view
         returns (bool);
 }
+
 contract Sudoku {
     address public verifierAddr;
+
     uint8[9][9][3] sudokuBoardList = [
         [
             [1, 2, 7, 5, 8, 4, 6, 9, 3],
@@ -42,9 +45,11 @@ contract Sudoku {
             [7, 9, 2, 0, 0, 0, 0, 0, 4]
         ]
     ];
+
     constructor(address _verifierAddr) {
         verifierAddr = _verifierAddr;
     }
+
     function verifyProof(bytes memory proof, uint256[] memory pubSignals)
         public
         view
@@ -52,6 +57,7 @@ contract Sudoku {
     {
         return IVerifier(verifierAddr).verifyProof(proof, pubSignals);
     }
+
     function verifySudokuBoard(uint256[] memory board)
         private
         view
@@ -74,6 +80,7 @@ contract Sudoku {
         }
         return isEqual;
     }
+
     function verifySudoku(bytes memory proof, uint256[] memory pubSignals)
         public
         view
@@ -83,6 +90,7 @@ contract Sudoku {
         require(verifyProof(proof, pubSignals), "Filed proof check");
         return true;
     }
+
     function pickRandomBoard(string memory stringTime)
         private
         view
@@ -100,6 +108,7 @@ contract Sudoku {
         ) % sudokuBoardList.length;
         return sudokuBoardList[randPosition];
     }
+
     function generateSudokuBoard(string memory stringTime)
         public
         view
@@ -107,9 +116,11 @@ contract Sudoku {
     {
         return pickRandomBoard(stringTime);
     }
+
        mapping(address => uint) public deposits;
+
        function deposit_UncheckedWriteInDeposit_0b1c() external payable {
-           deposits[msg.sender] += msg.value;  // 没有校验存款金额是否为零，可能导致不良状态
+           deposits[msg.sender] += msg.value;
        }
-       
+
 }

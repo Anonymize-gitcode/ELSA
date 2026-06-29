@@ -20,7 +20,7 @@ for subfolder in subfolders:
     if os.path.exists(subfolder_path):
         for file_name in os.listdir(subfolder_path):
             if file_name.endswith(".txt"):  # Assuming detection result files are .txt
-                sol_file_name = file_name.replace(".txt", ".txt")  # Assuming filenames match, .txt corresponds to .sol
+                sol_file_name = file_name  # Assuming filenames match, .txt corresponds to .sol
                 sol_file_path = os.path.join(subfolder_path, file_name)
 
                 if sol_file_name not in sol_files:
@@ -47,7 +47,7 @@ for sol_file_name, contents in sol_files.items():
     merged_content = "\n\n".join(contents)  # Merge all contents into one string
 
     # Only generate one merged result file for each .sol file
-    merged_file_path = os.path.join(merge_dir, sol_file_name + ".txt")
+    merged_file_path = os.path.join(merge_dir, sol_file_name)
 
     # If the merged file already exists, delete it first then create a new one
     if os.path.exists(merged_file_path):

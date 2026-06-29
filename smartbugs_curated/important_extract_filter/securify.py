@@ -23,14 +23,14 @@ def process_line(line):
     if "Setting it up" in line:
         return None
 
-    if "标准输出:" in line:
+    if "Standard Output:" in line:
         return None
 
     if "File" in line:
         return None
     if "Traceback" in line:
         return None
-    if "错误输出" in line:
+    if "Error Output" in line:
         return None
 
     # Replace paths and line numbers, e.g. ../../file.sol#123 -> line 123

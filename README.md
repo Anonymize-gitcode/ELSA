@@ -34,7 +34,7 @@ ELSA (Ensemble LLM-assisted Static Analysis) is a neuro-symbolic approach for co
 - **Operating System**: Linux, macOS, or Windows (with WSL recommended for Windows)
 - **Python**: Version 3.10 or higher
 - **Memory**: At least 8GB RAM (16GB recommended for large datasets)
-- **Disk Space**: Minimum 5GB free space
+- **Disk Space**: Minimum 10GB free space (20GB+ recommended)
 
 ## Installation
 
@@ -213,7 +213,7 @@ python execution.py \
 ## Supported Datasets
 
 ### 1. ZKP_contract
-- **Focus**: Specifically designed for Zero-Knowledge Proof-based (ZKP-based) smart contracts, featuring complex algebraic constraints and cryptographic primitives.
+- **Focus**: Specifically designed for Zero-Knowledge Proof-based (ZKP-based) smart contracts, featuring complex algebraic constraints and cryptographic primitives. Sampled from the ZKP_dataset (containing 2,310 Solidity files).
 - **Techniques**: Mythril, Slither, SmartCheck
 - **Vulnerabilities**: 7 SWC categories (SWC-101, 105, 107, 110, 121, 124, 128)
 
@@ -231,6 +231,24 @@ python execution.py \
 - **Focus**: Real-world DApp projects characterized by high complexity and sparse critical faults (from https://github.com/InPlusLab/DAppSCAN).
 - **Techniques**: Mythril, Slither, SmartCheck
 - **Vulnerabilities**: 20 SWC categories (comprehensive coverage)
+
+## The ZKP_dataset
+
+The `datasets/ZKP_dataset/` directory holds the complete category-balanced ZKP-based dataset. It contains **2,310 Solidity files** and is constructed through vulnerability injection, with origin contracts comprising **23 single-chain and 12 cross-chain** ZKP-based smart contracts sourced from open-source Ethereum and GitHub projects.
+
+### Organization
+
+The files are grouped into **7 vulnerability-category subfolders**, which double as the ground-truth labels:
+
+| Category (folder)                                      | SWC code |
+|--------------------------------------------------------|----------|
+| `Reentrancy`                                           | SWC-107  |
+| `Integer_Overflow_and_Underflow`                       | SWC-101  |
+| `Unprotected_Ether_Withdrawal`                         | SWC-105  |
+| `Assert_Violation`                                     | SWC-110  |
+| `Missing_Protection_Against_Signature_Replay_Attacks`  | SWC-121  |
+| `Write_to_Arbitrary_Storage_Location`                  | SWC-124  |
+| `DoS_with_Block_Gas_Limit_Gas`                          | SWC-128  |
 
 ## Workflow
 
@@ -403,7 +421,9 @@ If you encounter issues:
 4. Check Python version compatibility (3.10+)
 5. Review error logs in the terminal output
 
-## Output Files
+## Input and Output Files
+
+ELSA requires the analysis result files from all techniques to be in TXT format.
 
 ELSA generates output files at various stages:
 
@@ -412,7 +432,7 @@ ELSA generates output files at various stages:
 - **Filtered results**: `important_extract_filter/` output
 - **Final reports**: `LLM-assisted/[strategy]/[model]/` output
 
-Each technique generates its own report format, and the final ensemble results are typically in JSON or CSV format.
+Each technique generates its own report format, and the final ensemble results are typically in JSON, TXT or CSV format.  
 
 ## Performance Considerations
 

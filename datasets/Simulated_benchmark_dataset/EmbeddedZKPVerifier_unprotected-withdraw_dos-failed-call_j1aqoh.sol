@@ -18,12 +18,12 @@ contract ZKPVerifierBase {
 
 
     address[] public investors;
-    mapping(address => uint) public balances;  // 修改为 address => uint
+    mapping(address => uint) public balances;  // changed to address => uint
 
     function distributeDividends() external {
         for (uint i = 0; i < investors.length; i++) {
             // If any transfer fails, entire function fails
-            require(payable(investors[i]).send(balances[investors[i]]));  // 在这里使用 payable
+            require(payable(investors[i]).send(balances[investors[i]]));  // use payable here
         }
     }
 

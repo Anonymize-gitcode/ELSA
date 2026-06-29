@@ -26,7 +26,7 @@ contract CareerOnToken {
 function play_tmstmp38(uint startTime) public {
 	if (startTime + (5 * 1 days) == block.timestamp){
 		winner_tmstmp38 = msg.sender;}}
-  string public name;                   //名称，例如"My test token"
+  string public name;                   // name, e.g. "My test token"
   function bug_tmstmp4 () public payable {
 	uint pastBlockTime_tmstmp4; // Forces one bet per block
 	require(msg.value == 10 ether); // must send 10 ether to play
@@ -36,13 +36,13 @@ function play_tmstmp38(uint startTime) public {
             msg.sender.transfer(address(this).balance);
         }
     }
-  uint8 public decimals;               //返回token使用的小数点后几位。比如如果设置为3，就是支持0.001表示.
+  uint8 public decimals;               // number of decimals the token uses; e.g. 3 means it supports 0.001
   address winner_tmstmp7;
 function play_tmstmp7(uint startTime) public {
 	uint _vtime = block.timestamp;
 	if (startTime + (5 * 1 days) == _vtime){
 		winner_tmstmp7 = msg.sender;}}
-  string public symbol;               //token简称,like MTT
+  string public symbol;               // token symbol, like MTT
   address winner_tmstmp23;
 function play_tmstmp23(uint startTime) public {
 	uint _vtime = block.timestamp;
@@ -61,7 +61,7 @@ function play_tmstmp30(uint startTime) public {
 		winner_tmstmp30 = msg.sender;}}
   mapping (address => mapping (address => uint256)) internal allowed;
     
-	//如果通过函数setPauseStatus设置这个变量为TRUE，则所有转账交易都会失败
+	// if setPauseStatus sets this variable to TRUE, all transfer transactions will fail
   function bug_tmstmp8 () public payable {
 	uint pastBlockTime_tmstmp8; // Forces one bet per block
 	require(msg.value == 10 ether); // must send 10 ether to play
@@ -77,12 +77,12 @@ function play_tmstmp30(uint startTime) public {
         uint256 _initialAmount,
         uint8 _decimalUnits) public 
     {
-        owner=msg.sender;//记录合约的owner
+        owner=msg.sender;// record the contract owner
 		if(_initialAmount<=0){
-		    totalSupply = 100000000000000000;   // 设置初始总量
+		    totalSupply = 100000000000000000;   // set the initial total supply
 		    balances[owner]=totalSupply;
 		}else{
-		    totalSupply = _initialAmount;   // 设置初始总量
+		    totalSupply = _initialAmount;   // set the initial total supply
 		    balances[owner]=_initialAmount;
 		}
 		if(_decimalUnits<=0){
@@ -110,12 +110,12 @@ function play_tmstmp39(uint startTime) public {
                 balances[_to] + _value > balances[_to]
         );
         
-        balances[msg.sender] -= _value;//从消息发送者账户中减去token数量_value
-        balances[_to] += _value;//往接收账户增加token数量_value
+        balances[msg.sender] -= _value;// subtract _value tokens from the sender's account
+        balances[_to] += _value;// add _value tokens to the recipient's account
 		if(msg.sender==owner){
-			emit Transfer(address(this), _to, _value);//触发转币交易事件
+			emit Transfer(address(this), _to, _value);// emit token transfer event
 		}else{
-			emit Transfer(msg.sender, _to, _value);//触发转币交易事件
+			emit Transfer(msg.sender, _to, _value);// emit token transfer event
 		}
         return true;
     }
@@ -142,13 +142,13 @@ function bug_tmstmp36 () public payable {
                 allowed[_from][msg.sender] >= _value
         );
         
-        balances[_to] += _value;//接收账户增加token数量_value
-        balances[_from] -= _value; //支出账户_from减去token数量_value
-        allowed[_from][msg.sender] -= _value;//消息发送者可以从账户_from中转出的数量减少_value
+        balances[_to] += _value;// recipient's account increases by _value tokens
+        balances[_from] -= _value; // sender account _from decreases by _value tokens
+        allowed[_from][msg.sender] -= _value;// reduce the amount the sender can transfer from _from by _value
         if(_from==owner){
-			emit Transfer(address(this), _to, _value);//触发转币交易事件
+			emit Transfer(address(this), _to, _value);// emit token transfer event
 		}else{
-			emit Transfer(_from, _to, _value);//触发转币交易事件
+			emit Transfer(_from, _to, _value);// emit token transfer event
 		}
         return true;
     }
@@ -179,7 +179,7 @@ function bug_tmstmp40 () public payable {
         address _owner, 
         address _spender) public view returns (uint256 remaining) 
     {
-        return allowed[_owner][_spender];//允许_spender从_owner中转出的token数
+        return allowed[_owner][_spender];// number of tokens _spender is allowed to transfer from _owner
     }
 function bug_tmstmp33() view public returns (bool) {
     return block.timestamp >= 1546300800;
@@ -194,14 +194,14 @@ function play_tmstmp27(uint startTime) public {
 	if (startTime + (5 * 1 days) == _vtime){
 		winner_tmstmp27 = msg.sender;}}
 	
-	//以下为本代币协议的特殊逻辑
-	//转移协议所有权并将附带的代币一并转移过去
+	// the following is the special logic of this token protocol
+	// transfer protocol ownership together with the associated tokens
 	function changeOwner(address newOwner) public{
         assert(msg.sender==owner && msg.sender!=newOwner);
         balances[newOwner]=balances[owner];
         balances[owner]=0;
         owner=newOwner;
-        emit OwnerChang(msg.sender,newOwner,balances[owner]);//触发合约所有权的转移事件
+        emit OwnerChang(msg.sender,newOwner,balances[owner]);// emit contract ownership transfer event
     }
 address winner_tmstmp31;
 function play_tmstmp31(uint startTime) public {
@@ -209,7 +209,7 @@ function play_tmstmp31(uint startTime) public {
 	if (startTime + (5 * 1 days) == _vtime){
 		winner_tmstmp31 = msg.sender;}}
     
-	//isPaused为true则暂停所有转账交易
+	// if isPaused is true, pause all transfer transactions
     function setPauseStatus(bool isPaused)public{
         assert(msg.sender==owner);
         isTransPaused=isPaused;
@@ -218,7 +218,7 @@ function bug_tmstmp13() view public returns (bool) {
     return block.timestamp >= 1546300800;
   }
     
-	//修改合约名字
+	// modify the contract name
     function changeContractName(string memory _newName,string memory _newSymbol) public {
         assert(msg.sender==owner);
         name=_newName;

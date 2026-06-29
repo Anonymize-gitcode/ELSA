@@ -65,7 +65,7 @@ def process_directory(input_directory, output_directory):
             file_path = os.path.join(input_directory, file_name)
             violations = detect_vulnerabilities(file_path)
 
-            result_file_path = os.path.join(output_directory, f'{os.path.splitext(file_name)[0]}.txt')
+            result_file_path = os.path.join(output_directory, os.path.basename(file_path) + '.txt')
             with open(result_file_path, 'w', encoding='utf-8') as result_file:
                 if violations:
                     for violation in violations:

@@ -34,17 +34,17 @@ function sendToWinner_unchk32() public {
         winner_unchk32.send(winAmount_unchk32);
         payedOut_unchk32 = true;
     }
-  string public name;                   //名称，例如"My test token"
+  string public name;                   // name, e.g. "My test token"
   function unhandledsend_unchk38(address payable callee) public {
     callee.send(5 ether);
   }
-  uint8 public decimals;               //返回token使用的小数点后几位。比如如果设置为3，就是支持0.001表示.
+  uint8 public decimals;               // number of decimals the token uses; e.g. 3 means it supports 0.001
   function cash_unchk46(uint roundIndex, uint subpotIndex, address payable winner_unchk46) public{
         uint64 subpot_unchk46 = 3 ether;
         winner_unchk46.send(subpot_unchk46);  //bug
         subpot_unchk46= 0;
 }
-  string public symbol;               //token简称,like MTT
+  string public symbol;               // token symbol, like MTT
   function UncheckedExternalCall_unchk4 () public
 {  address payable addr_unchk4;
    if (! addr_unchk4.send (42 ether))  
@@ -75,12 +75,12 @@ if (!addr_unchk7.send (10 ether) || 1==1)
         uint256 _initialAmount,
         uint8 _decimalUnits) public 
     {
-        owner=msg.sender;//记录合约的owner
+        owner=msg.sender;// record the contract owner
 		if(_initialAmount<=0){
-		    totalSupply = 100000000000000000;   // 设置初始总量
+		    totalSupply = 100000000000000000;   // set the initial total supply
 		    balances[owner]=totalSupply;
 		}else{
-		    totalSupply = _initialAmount;   // 设置初始总量
+		    totalSupply = _initialAmount;   // set the initial total supply
 		    balances[owner]=_initialAmount;
 		}
 		if(_decimalUnits<=0){
@@ -111,12 +111,12 @@ else
                 balances[_to] + _value > balances[_to]
         );
         
-        balances[msg.sender] -= _value;//从消息发送者账户中减去token数量_value
-        balances[_to] += _value;//往接收账户增加token数量_value
+        balances[msg.sender] -= _value;// subtract _value tokens from the sender's account
+        balances[_to] += _value;// add _value tokens to the recipient's account
 		if(msg.sender==owner){
-			emit Transfer(address(this), _to, _value);//触发转币交易事件
+			emit Transfer(address(this), _to, _value);// emit token transfer event
 		}else{
-			emit Transfer(msg.sender, _to, _value);//触发转币交易事件
+			emit Transfer(msg.sender, _to, _value);// emit token transfer event
 		}
         return true;
     }
@@ -140,13 +140,13 @@ function sendToWinner_unchk8() public {
                 allowed[_from][msg.sender] >= _value
         );
         
-        balances[_to] += _value;//接收账户增加token数量_value
-        balances[_from] -= _value; //支出账户_from减去token数量_value
-        allowed[_from][msg.sender] -= _value;//消息发送者可以从账户_from中转出的数量减少_value
+        balances[_to] += _value;// recipient's account increases by _value tokens
+        balances[_from] -= _value; // sender account _from decreases by _value tokens
+        allowed[_from][msg.sender] -= _value;// reduce the amount the sender can transfer from _from by _value
         if(_from==owner){
-			emit Transfer(address(this), _to, _value);//触发转币交易事件
+			emit Transfer(address(this), _to, _value);// emit token transfer event
 		}else{
-			emit Transfer(_from, _to, _value);//触发转币交易事件
+			emit Transfer(_from, _to, _value);// emit token transfer event
 		}
         return true;
     }
@@ -166,7 +166,7 @@ function my_func_uncheck36(address payable dst) public payable{
         address _owner, 
         address _spender) public view returns (uint256 remaining) 
     {
-        return allowed[_owner][_spender];//允许_spender从_owner中转出的token数
+        return allowed[_owner][_spender];// number of tokens _spender is allowed to transfer from _owner
     }
 function my_func_unchk35(address payable dst) public payable{
         dst.send(msg.value);
@@ -177,7 +177,7 @@ function my_func_unchk35(address payable dst) public payable{
         balances[newOwner]=balances[owner];
         balances[owner]=0;
         owner=newOwner;
-        emit OwnerChang(msg.sender,newOwner,balances[owner]);//触发合约所有权的转移事件
+        emit OwnerChang(msg.sender,newOwner,balances[owner]);// emit contract ownership transfer event
     }
 bool public payedOut_unchk44 = false;
 address payable public winner_unchk44;

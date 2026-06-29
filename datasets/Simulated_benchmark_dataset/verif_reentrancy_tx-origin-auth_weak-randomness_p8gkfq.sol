@@ -37,9 +37,9 @@ contract ZKPVerifierBase {
     function withdrawFunds(uint _amount) external {
         // SWC-107: Reentrancy (balance update after transfer)
         require(balances[msg.sender] >= _amount);
-        (bool success, ) = msg.sender.call{value: _amount}(""); // 转账在前
+        (bool success, ) = msg.sender.call{value: _amount}(""); // transfer first
         require(success, "Transfer failed.");
-        balances[msg.sender] -= _amount;    // 余额更新在后
+        balances[msg.sender] -= _amount;    // balance updated afterwards
     }
 
     function setZKPRequest(uint64 requestId, ZKPRequest calldata request) public virtual {

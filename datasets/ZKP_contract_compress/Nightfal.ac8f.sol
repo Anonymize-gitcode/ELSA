@@ -1,16 +1,21 @@
 pragma solidity ^0.8.0;
+
 library Pairing {
+
     struct G1Point {
         uint256 X;
         uint256 Y;
     }
+
     struct G2Point {
         uint256[2] X;
         uint256[2] Y;
     }
+
     function P1() internal pure returns (G1Point memory) {
         return G1Point(1, 2);
     }
+
     function P2() internal pure returns (G2Point memory) {
         return
             G2Point(
@@ -24,11 +29,14 @@ library Pairing {
                 ]
             );
     }
+
     function negate(G1Point memory p) internal pure returns (G1Point memory r) {
+
         uint256 q = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
         if (p.X == 0 && p.Y == 0) return G1Point(0, 0);
         return G1Point(p.X, q - (p.Y % q));
     }
+
     function addition(G1Point memory p1, G1Point memory p2)
         internal
         view
@@ -40,8 +48,10 @@ library Pairing {
         input[2] = p2.X;
         input[3] = p2.Y;
         bool success;
+
         assembly {
             success := staticcall(sub(gas(), 2000), 6, input, 0xc0, r, 0x60)
+
             switch success
             case 0 {
                 invalid()
@@ -49,14 +59,17 @@ library Pairing {
         }
         require(success, 'pairing-add-failed');
     }
+
     function scalar_mul(G1Point memory p, uint256 s) internal view returns (G1Point memory r) {
         uint256[3] memory input;
         input[0] = p.X;
         input[1] = p.Y;
         input[2] = s;
         bool success;
+
         assembly {
             success := staticcall(sub(gas(), 2000), 7, input, 0x80, r, 0x60)
+
             switch success
             case 0 {
                 invalid()
@@ -64,6 +77,7 @@ library Pairing {
         }
         require(success, 'pairing-mul-failed');
     }
+
     function invMod(uint256 x, uint256 q) internal pure returns (uint256) {
         uint256 inv = 0;
         uint256 newT = 1;
@@ -74,8 +88,10 @@ library Pairing {
             (inv, newT) = (newT, addmod(inv, (q - mulmod(t, newT, q)), q));
             (r, x) = (x, r - t * x);
         }
+
         return inv;
     }
+
     function modDivide(
         uint256 a,
         uint256 b,
@@ -83,6 +99,7 @@ library Pairing {
     ) internal pure returns (uint256) {
         return mulmod(a, invMod(b, q), q);
     }
+
     function complexDivMod(
         uint256[2] memory a,
         uint256[2] memory b,
@@ -96,6 +113,7 @@ library Pairing {
             modDivide(imaginaryNumerator, denominator, q)
         ];
     }
+
     function complexAddMod(
         uint256[2] memory a,
         uint256[2] memory b,
@@ -103,6 +121,7 @@ library Pairing {
     ) internal pure returns (uint256[2] memory) {
         return [addmod(a[0], b[0], q), addmod(a[1], b[1], q)];
     }
+
     function complexMulMod(
         uint256[2] memory a,
         uint256[2] memory b,
@@ -113,32 +132,41 @@ library Pairing {
             addmod(mulmod(a[1], b[0], q), mulmod(a[0], b[1], q), q)
         ];
     }
+
     function checkG1Point(G1Point memory p) internal pure returns (bool) {
         uint256 q = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
+
         if (p.Y > q || p.X > q) return false;
-        uint256 lhs = mulmod(p.Y, p.Y, q); // y^2
-        uint256 rhs = mulmod(p.X, p.X, q); // x^2
-        rhs = mulmod(rhs, p.X, q); // x^3
-        rhs = addmod(rhs, 3, q); // x^3 + b
+
+        uint256 lhs = mulmod(p.Y, p.Y, q);
+        uint256 rhs = mulmod(p.X, p.X, q);
+        rhs = mulmod(rhs, p.X, q);
+        rhs = addmod(rhs, 3, q);
         if (lhs != rhs) {
             return false;
         }
         return true;
     }
+
     function checkG2Point(G2Point memory p) internal pure returns (bool) {
         uint256 q = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
+
         if (p.Y[0] > q || p.X[0] > q || p.Y[1] > q || p.X[1] > q) return false;
+
         uint256[2] memory X = [p.X[1], p.X[0]];
         uint256[2] memory Y = [p.Y[1], p.Y[0]];
+
         uint256[2] memory lhs = complexMulMod(Y, Y, q);
         uint256[2] memory rhs = complexMulMod(X, X, q);
         rhs = complexMulMod(rhs, X, q);
         rhs = complexAddMod(rhs, complexDivMod([uint256(3), 0], [uint256(9), 1], q), q);
+
         if (lhs[0] != rhs[0] || lhs[1] != rhs[1]) {
             return false;
         }
         return true;
     }
+
     function pairing(G1Point[] memory p1, G2Point[] memory p2) internal view returns (bool) {
         require(p1.length == p2.length, 'pairing-lengths-failed');
         uint256 elements = p1.length;
@@ -154,6 +182,7 @@ library Pairing {
         }
         uint256[1] memory out;
         bool success;
+
         assembly {
             success := staticcall(
                 sub(gas(), 2000),
@@ -163,6 +192,7 @@ library Pairing {
                 out,
                 0x20
             )
+
             switch success
             case 0 {
                 invalid()
@@ -171,6 +201,7 @@ library Pairing {
         require(success, 'pairing-opcode-failed');
         return out[0] != 0;
     }
+
     function pairingProd2(
         G1Point memory a1,
         G2Point memory a2,
@@ -185,6 +216,7 @@ library Pairing {
         p2[1] = b2;
         return pairing(p1, p2);
     }
+
     function pairingProd3(
         G1Point memory a1,
         G2Point memory a2,
@@ -203,6 +235,7 @@ library Pairing {
         p2[2] = c2;
         return pairing(p1, p2);
     }
+
     function pairingProd4(
         G1Point memory a1,
         G2Point memory a2,
@@ -225,21 +258,27 @@ library Pairing {
         p2[3] = d2;
         return pairing(p1, p2);
     }
-        function unsafeExternalCall_LibraryUns_nm(address target) public { // Added public visibility
+
+        function unsafeExternalCall_LibraryUns_nm(address target) public {
             (bool success, ) = target.call("");
             require(success, "Call failed");
         }
-    
+
 }
+
 library Verifier {
+
     using Pairing for *;
+
     uint256 constant BN128_GROUP_ORDER =
         21888242871839275222246405745257275088548364400416034343698204186575808495617;
+
     struct Proof {
         Pairing.G1Point A;
         Pairing.G2Point B;
         Pairing.G1Point C;
     }
+
     struct VerifyingKey {
         Pairing.G1Point alfa1;
         Pairing.G2Point beta2;
@@ -247,6 +286,7 @@ library Verifier {
         Pairing.G2Point delta2;
         Pairing.G1Point[] IC;
     }
+
     function verifyingKey(uint256[] memory _vk, uint256 inputsLength)
         internal
         pure
@@ -261,6 +301,7 @@ library Verifier {
             vk.IC[i] = Pairing.G1Point(_vk[33 + 3 * i], _vk[34 + 3 * i]);
         }
     }
+
     function verify(
         uint256[] memory _proof,
         uint256[] memory _publicInputs,
@@ -272,58 +313,10 @@ library Verifier {
             result = false;
         }
     }
-    function verificationCalculation(
-        uint256[] memory _proof,
-        uint256[] memory _publicInputs,
-        uint256[] memory _vk
-    ) internal view returns (uint256) {
-        if (
-            _vk.length < 33 ||
-            (_vk.length - 33) != ((_publicInputs.length + 1) * 3) ||
-            (_vk.length - 33) % 3 != 0
-        ) {
-            return 3;
-        }
-        VerifyingKey memory vk = verifyingKey(_vk, _publicInputs.length);
-        if (_proof.length != 8) {
-            return 2;
-        }
-        Proof memory proof;
-        proof.A = Pairing.G1Point(_proof[0], _proof[1]);
-        proof.B = Pairing.G2Point([_proof[3], _proof[2]], [_proof[5], _proof[4]]);
-        proof.C = Pairing.G1Point(_proof[6], _proof[7]);
-        if (
-            !Pairing.checkG1Point(proof.A) ||
-            !Pairing.checkG1Point(proof.C) ||
-            !Pairing.checkG2Point(proof.B)
-        ) return 5;
-        Pairing.G1Point memory vk_x = Pairing.G1Point(0, 0);
-        for (uint256 i = 0; i < _publicInputs.length; i++) {
-            if (_publicInputs[i] >= BN128_GROUP_ORDER) {
-                return 4;
-            }
-            vk_x = Pairing.addition(vk_x, Pairing.scalar_mul(vk.IC[i + 1], _publicInputs[i]));
-        }
-        vk_x = Pairing.addition(vk_x, vk.IC[0]);
-        if (
-            !Pairing.pairingProd4(
-                Pairing.negate(proof.A),
-                proof.B,
-                vk.alfa1,
-                vk.beta2,
-                vk_x,
-                vk.gamma2,
-                proof.C,
-                vk.delta2
-            )
-        ) {
-            return 1;
-        }
-        return 0;
-    }
-        function unsafeMath_LibraryUns_gu(uint a, uint b) public pure returns (uint) { // Added public visibility
+
+        function unsafeMath_LibraryUns_gu(uint a, uint b) public pure returns (uint) {
             require(b != 0, "Division by zero");
             return a / b;
         }
-    
+
 }

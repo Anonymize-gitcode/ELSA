@@ -44,7 +44,7 @@ def check_for_vulnerabilities(file_path, output_path):
                     break
 
         # Generate output file path
-        file_name = os.path.splitext(os.path.basename(file_path))[0] + '.txt'
+        file_name = os.path.basename(file_path) + '.txt'
         output_file_path = os.path.join(output_path, file_name)
 
         # Ensure output directory exists

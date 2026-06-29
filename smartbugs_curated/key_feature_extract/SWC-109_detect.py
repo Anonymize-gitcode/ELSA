@@ -143,7 +143,7 @@ def analyze_file(file_path, output_path):
                     )
 
     # Save detection result
-    file_name = os.path.splitext(os.path.basename(file_path))[0] + '.txt'
+    file_name = os.path.basename(file_path) + '.txt'
     output_file_path = os.path.join(output_path, file_name)
     if vulnerabilities:
         with open(output_file_path, 'w', encoding='utf-8') as output_file:

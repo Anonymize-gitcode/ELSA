@@ -16,11 +16,11 @@ sol_files = {}
 
 # Iterate through .txt files in each subfolder
 for subfolder in subfolders:
-    subfolder_path = os.path.join(source_dir, subfolder)
+    subfolder_path = os.path.join(source_dir, f'../../result/key_feature_extract/{subfolder}')
     if os.path.exists(subfolder_path):
         for file_name in os.listdir(subfolder_path):
             if file_name.endswith(".txt"):  # Assume detection result files are .txt
-                sol_file_name = file_name.replace(".txt", ".sol")  # Assume matching filenames: .txt files correspond to .sol files
+                sol_file_name = file_name  # Assume matching filenames: .txt files correspond to .sol files
                 sol_file_path = os.path.join(subfolder_path, file_name)
                 if sol_file_name not in sol_files:
                     sol_files[sol_file_name] = []  # Create an empty list for a new .sol file
@@ -35,7 +35,7 @@ for sol_file_name, contents in sol_files.items():
     merged_content = "\n\n".join(contents)  # Merge all content into one string
 
     # Only generate one merged result file per .sol file
-    merged_file_path = os.path.join(merge_dir, sol_file_name + ".txt")
+    merged_file_path = os.path.join(merge_dir, sol_file_name)
 
     # If the merged file already exists, delete it first
     if os.path.exists(merged_file_path):

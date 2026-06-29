@@ -79,40 +79,37 @@ def analyze_common_vulnerabilities_with_gpt(mythril_output, solidity_content, st
     swc_codes = set()
 
     mythril_output_str = json.dumps(mythril_output, indent=2) if isinstance(mythril_output, dict) else mythril_output
-
     zkp_model_content = read_zkp_analysis_file(sol_file_name)
-    solidity_response = set()
     key_feature_content = read_key_feature_file(sol_file_name)
-    length_threshold = 13000
+    length_threshold = 12000
 
     if len(solidity_content) > length_threshold:
         print(f"Solidity code exceeds {length_threshold} characters, optimizing.")
-        prompt_for_solidity = (
-            f"Please optimize the following Solidity code by removing redundant parts while retaining all functions and code segments related to vulnerabilities to ensure vulnerability analysis is not affected:\n"
-            f"Optimization requirements:\n"
-            f"1. Remove unused variables, functions, and irrelevant code to avoid affecting vulnerability analysis.\n"
-            f"2. Retain all functions potentially related to vulnerabilities, especially those flagged by mythril or other techniques.\n"
-            f"3. Ensure that the core functionality of each function is preserved. The optimized code should retain its functionality and vulnerability analysis consistency.\n\n"
-            f"Solidity file content:\n{solidity_content}\n\n"
-        )
-        try:
-            solidity_response = send_full_text_to_gpt(prompt_for_solidity)
-        except Exception as e:
-            print(f"Error calling GPT: {e}")
-            solidity_response = "An error occurred during optimization."
+        file_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), f'../../../../datasets/DAppSCAN_compressed/{sol_file_name}.sol'))
+        print(file_path)
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    solidity_content_vector = file.read()
+                    print(f"Successfully read content of file {sol_file_name}.")
+            except Exception as e:
+                print(f"Error reading file {sol_file_name}: {e}")
+                solidity_content_vector = "Error reading file, analysis cannot continue."
+        else:
+            print(f"File {sol_file_name} does not exist, cannot read.")
+            solidity_content_vector = "Specified Solidity file does not exist, analysis cannot continue."
+
+        solidity_response = solidity_content_vector
+
     else:
         print(f"Solidity code length does not exceed {length_threshold} characters, no optimization needed.")
         solidity_response = solidity_content
 
     prompt_for_inspiration = (
-        f"Based on the following Solidity file content, summarize accurate and effective heuristic prompts to help GPT analyze potential vulnerabilities and risks. "
-        f"Please remove any vulnerability that does not exist in the Solidity file.\n"
-        f"Return format:\n"
-        f"[SWC code]: Line number of the vulnerability: [specific line], brief description.\n"
-        f"Please check each function carefully, especially focus on:\n"
-        f"1. Function control flow and state changes,\n"
-        f"2. Data operations and calls,\n"
-        f"3. Common vulnerabilities such as reentrancy, arithmetic overflow, permission control.\n"
+        f"Based on the following Solidity file content, summarize and validate accurate and effective clues from the three provided hints to guide GPT analysis.\n"
+        f"If a vulnerability does not exist in the Solidity file, please remove it.\n"
+        f"Return the high-risk function name and the associated issue.\n"
         f"Contract structure hints:\n{structure_hint}\n"
         f"Key feature hints:\n{key_feature_content}\n"
         f"Analysis hints:\n{zkp_model_content}\n"
@@ -127,37 +124,39 @@ def analyze_common_vulnerabilities_with_gpt(mythril_output, solidity_content, st
         print("No heuristic summary obtained.")
 
     prompt_for_analysis = (
-        f"Please analyze the vulnerabilities in the contract from the following Solidity file content and mythril output, using the heuristic prompts.\n"
-        f"Check each function carefully, ensuring to analyze its functionality and potential risks. Return a precise list of SWC codes without any fix suggestions or scope descriptions.\n\n"
-        f"Detection includes the following vulnerabilities:\n"
-        f"SWC-135: Code With No Effects\n"
-        f"SWC-108: State Variable Default Visibility\n"
-        f"SWC-129: Unchecked Call Return Value\n"
-        f"SWC-123: Requirement Violation\n"
-        f"SWC-100: Uninitialized State Variables\n"
-        f"SWC-119: Shadowing State Variables\n"
-        f"SWC-102: Unencrypted Private Data On-Chain\n"
-        f"SWC-103: Ether Transfer to Unknown Address\n"
-        f"SWC-128: DoS With Block Gas Limit\n"
-        f"SWC-104: Outdated Compiler Version\n"
-        f"SWC-126: Insufficient Gas Griefing\n"
-        f"SWC-101: Delegatecall to Untrusted Contract\n"
-        f"SWC-118: Incorrect Constructor Name\n"
-        f"SWC-105: Unchecked Low-Level Calls\n"
-        f"SWC-107: DoS with (Unexpected) Revert\n"
-        f"SWC-114: Transaction Order Dependence\n"
-        f"SWC-120: Authorization through tx.origin\n"
-        f"SWC-111: Use of Deprecated Solidity Functions\n"
-        f"SWC-116: Block values as a proxy for time\n"
-        f"SWC-113: DoS with Block Gas Limit\n"
-
+        f"Please analyze vulnerabilities in the following Solidity file, using risk function clues from the inspiration hints. Return the highest risk vulnerability type.\n"
+        f"Summarize and confirm existing SWC code vulnerabilities. Do not provide fix suggestions or detection ranges. Ensure the vulnerabilities exist.\n\n"
+        f"Detection range: 'SWC-135': 'Code With No Effects',"
+        f"'SWC-108': 'State Variable Default Visibility',"
+        f"'SWC-129': 'Unchecked Call Return Value',"
+        f"'SWC-123': 'Requirement Violation',"
+        f"'SWC-100': 'Uninitialized State Variables',"
+        f"'SWC-119': 'Shadowing State Variables',"
+        f"'SWC-102': 'Unencrypted Private Data On-Chain',"
+        f"'SWC-103': 'Ether Transfer to Unknown Address',"
+        f"'SWC-128': 'DoS With Block Gas Limit',"
+        f"'SWC-104': 'Outdated Compiler Version',"
+        f"'SWC-126': 'Insufficient Gas Griefing',"
+        f"'SWC-101': 'Delegatecall to Untrusted Contract',"
+        f"'SWC-118': 'Incorrect Constructor Name',"
+        f"'SWC-105': 'Unchecked Low-Level Calls',"
+        f"'SWC-107': 'DoS with (Unexpected) Revert',"
+        f"'SWC-114': 'Transaction Order Dependence',"
+        f"'SWC-120': 'Authorization through tx.origin',"
+        f"'SWC-111': 'Use of Deprecated Solidity Functions',"
+        f"'SWC-116': 'Block values as a proxy for time',"
+        f"'SWC-113': 'DoS with Block Gas Limit'.\n"
         f"Analysis process:\n"
         f"1. Check each function, identify potential vulnerabilities, especially those related to permission control, arithmetic operations, and external calls.\n"
         f"2. Ensure accurate SWC codes and specify the vulnerable function or code segment.\n\n"
-
+        f"Contract structure hints:\n{structure_hint}\n"
         f"Solidity file content:\n{solidity_response}\n\n"
         f"mythril output:\n{mythril_output_str}\n\n"
         f"Heuristic prompts:\n{inspiration_response}\n\n"
+        f"Return format:\n"
+        f"[SWC code]: Vulnerability line: [specific line], brief description\n"
+        f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found."
     )
 
     gpt_response = send_full_text_to_gpt(prompt_for_analysis)
@@ -191,38 +190,42 @@ def read_key_feature_file(sol_file_name):
         return ""
 
 # Analyze symbolic execution results of smart contracts
-def simulate_symbolic_execution_with_gpt(mythril_output, solidity_content, vulnerabilities_found, sol_file_name,solidity_response):
+def simulate_symbolic_execution_with_gpt(mythril_output, solidity_content, vulnerabilities_found, structure_hint, solidity_response):
     swc_codes = set()
     mythril_output_str = json.dumps(mythril_output, indent=2) if isinstance(mythril_output, dict) else mythril_output
 
     prompt = (
-        f"Based on symbolic execution logic, combined with the following Solidity code and mythril output and known vulnerabilities, "
-        f"simulate the execution paths of the smart contract under different inputs, check for potential execution risks, and verify the authenticity of discovered vulnerabilities. Remove any false positives.\n"
-        f"Check each function carefully. Return a precise list of confirmed SWC codes. Do not provide fix suggestions or detection scopes.\n\n"
-        f"Known vulnerabilities: {','.join(vulnerabilities_found)}\n"
-        f"Detection includes:\n"
-        f"SWC-135: Code With No Effects\n"
-        f"SWC-108: State Variable Default Visibility\n"
-        f"SWC-129: Unchecked Call Return Value\n"
-        f"SWC-123: Requirement Violation\n"
-        f"SWC-100: Uninitialized State Variables\n"
-        f"SWC-119: Shadowing State Variables\n"
-        f"SWC-102: Unencrypted Private Data On-Chain\n"
-        f"SWC-103: Ether Transfer to Unknown Address\n"
-        f"SWC-128: DoS With Block Gas Limit\n"
-        f"SWC-104: Outdated Compiler Version\n"
-        f"SWC-126: Insufficient Gas Griefing\n"
-        f"SWC-101: Delegatecall to Untrusted Contract\n"
-        f"SWC-118: Incorrect Constructor Name\n"
-        f"SWC-105: Unchecked Low-Level Calls\n"
-        f"SWC-107: DoS with (Unexpected) Revert\n"
-        f"SWC-114: Transaction Order Dependence\n"
-        f"SWC-120: Authorization through tx.origin\n"
-        f"SWC-111: Use of Deprecated Solidity Functions\n"
-        f"SWC-116: Block values as a proxy for time\n"
-        f"SWC-113: DoS with Block Gas Limit\n"
+        f"Based on the logic of symbolic execution techniques, and combining the following Solidity code and discovered vulnerabilities, return the highest-risk vulnerability type. "
+        f"Simulate execution paths of the smart contract under different inputs, inspect potential execution risks, and verify the validity of discovered vulnerabilities. "
+        f"Remove vulnerabilities that do not actually exist.\n"
+        f"Discovered vulnerabilities: {','.join(vulnerabilities_found)}\n"
+        f"Detection range: 'SWC-135': 'Code With No Effects',"
+        f"'SWC-108': 'State Variable Default Visibility',"
+        f"'SWC-129': 'Unchecked Call Return Value',"
+        f"'SWC-123': 'Requirement Violation',"
+        f"'SWC-100': 'Uninitialized State Variables',"
+        f"'SWC-119': 'Shadowing State Variables',"
+        f"'SWC-102': 'Unencrypted Private Data On-Chain',"
+        f"'SWC-103': 'Ether Transfer to Unknown Address',"
+        f"'SWC-128': 'DoS With Block Gas Limit',"
+        f"'SWC-104': 'Outdated Compiler Version',"
+        f"'SWC-126': 'Insufficient Gas Griefing',"
+        f"'SWC-101': 'Delegatecall to Untrusted Contract',"
+        f"'SWC-118': 'Incorrect Constructor Name',"
+        f"'SWC-105': 'Unchecked Low-Level Calls',"
+        f"'SWC-107': 'DoS with (Unexpected) Revert',"
+        f"'SWC-114': 'Transaction Order Dependence',"
+        f"'SWC-120': 'Authorization through tx.origin',"
+        f"'SWC-111': 'Use of Deprecated Solidity Functions',"
+        f"'SWC-116': 'Block values as a proxy for time',"
+        f"'SWC-113': 'DoS with Block Gas Limit'.\n"
         f"Solidity file content:\n{solidity_response}\n"
-        f"mythril output:\n{mythril_output_str}\n"
+        f"Contract structure hints:\n{structure_hint}\n"
+        f"Return format:\n"
+        f"[SWC code]: Vulnerability line: [specific line], brief description\n"
+        f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found.\n"
+        f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 
     gpt_response = send_full_text_to_gpt(prompt)

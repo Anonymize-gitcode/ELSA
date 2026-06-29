@@ -41,9 +41,9 @@ def select_final_vulnerability(mythril_result, slither_result, smartcheck_result
     """Select the final vulnerability"""
     # Define technique weighting accuracy (combined precision and recall)
     technique_weights = {
-        'mythril': 0.1,  # Only consider precision
+        'mythril': 0.3,  # Only consider precision
         'slither': 0.2,
-        'smartcheck': 0.3
+        'smartcheck': 0.1
     }
 
     # SWC code statistics to determine the final vulnerability

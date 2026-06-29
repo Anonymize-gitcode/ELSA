@@ -14,16 +14,16 @@ contract ZKPVerifierBase {
     // Changed visibility from internal to public
 
     // SWC-119: State variable shadowing - Parameter shadows state
-    uint256 public shadowBalance; // 状态变量（命名避免冲突）
+    uint256 public shadowBalance; // state variable (named to avoid conflict)
 
     function updateBalance(uint256 shadowBalance) external {
-        // 漏洞点：参数shadowBalance遮蔽状态变量，赋值仅修改参数
+        // vulnerability: parameter shadowBalance shadows the state variable; assignment only modifies the parameter
         shadowBalance = shadowBalance; 
-        // 正确写法：this.shadowBalance = shadowBalance;
+        // correct form: this.shadowBalance = shadowBalance;
     }
 
     function getCurrentBalance() external view returns (uint256) {
-        // 返回未被更新的状态变量（始终为0）
+        // returns the state variable that was never updated (always 0)
         return shadowBalance;
     }
 

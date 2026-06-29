@@ -107,7 +107,7 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, so
         print(f"Solidity code does not exceed {length_threshold} characters, no optimization needed.")
         solidity_response = solidity_content
     prompt = (
-        f"Please analyze the following Solidity code and slither output, identify the vulnerability types, and return the most critical ones.\n"
+        f"Please analyze the following Solidity code and slither output to identify vulnerability types and return the highest risk vulnerability type. "
         f"Detection scope includes: 'SWC-101':'Integer_Overflow_and_Underflow', "
         f"'SWC-105':'Unprotected_Ether_Withdrawal', "
         f"'SWC-107':'Reentrancy', "
@@ -115,12 +115,13 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, so
         f"'SWC-121':'Missing_Protection_Against_Signature_Replay_Attacks', "
         f"'SWC-124':'Write_to_Arbitrary_Storage_Location', "
         f"'SWC-128':'DoS_with_Block_Gas_Limit_Gas'.\n"
-        f"Return format:\n"
-        f"[SWC code]: Vulnerability line: [line number], brief description.\n"
-        f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
         f"Solidity code:\n{solidity_response}\n\n"
         f"Contract structure hint:\n{structure_hint}\n"
         f"slither output:\n{slither_output_str}\n"
+        f"Response format:\n"
+        f"[SWC code]: Vulnerability line number: [specific line]. Do not return other irrelevant information.\n"
+        f"Example output: SWC-101: Vulnerability line number: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found.\n"
         f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 
@@ -304,3 +305,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

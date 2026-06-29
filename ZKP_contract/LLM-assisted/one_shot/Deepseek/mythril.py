@@ -118,12 +118,13 @@ def analyze_common_vulnerabilities_with_gpt(mythril_output, solidity_content,sol
         f"'SWC-121':'Missing_Protection_Against_Signature_Replay_Attacks', "
         f"'SWC-124':'Write_to_Arbitrary_Storage_Location', "
         f"'SWC-128':'DoS_with_Block_Gas_Limit_Gas'.\n"
-        f"Response format:\n"
-        f"[SWC code]: Vulnerability line number: [specific line]. Do not return other irrelevant information.\n"
-        f"Example output: SWC-101: Vulnerability line number: 52 \n SWC-107: Not found\n"
         f"Solidity code:\n{solidity_response}\n\n"
         f"Contract structure hint:\n{structure_hint}\n"
         f"mythril output:\n{mythril_output_str}\n"
+        f"Response format:\n"
+        f"[SWC code]: Vulnerability line number: [specific line]. Do not return other irrelevant information.\n"
+        f"Example output: SWC-101: Vulnerability line number: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found.\n"
         f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 
@@ -159,7 +160,7 @@ def analyze_with_gpt_in_three_rounds(mythril_output, solidity_content, structure
 
 
 # Cross-validate until intersection found in three rounds
-def analyze_with_gpt_until_intersection(smartcheck_output, solidity_content, structure_hint, sol_file_name,
+def analyze_with_gpt_until_intersection(mythril_output, solidity_content, structure_hint, sol_file_name,
                                         max_attempts=5):
     attempt = 0
     all_swc_codes = []
@@ -169,7 +170,7 @@ def analyze_with_gpt_until_intersection(smartcheck_output, solidity_content, str
         attempt += 1
         logging.info(f"Analysis round {attempt} started")
 
-        current_round_results = analyze_with_gpt_in_three_rounds(smartcheck_output, solidity_content, structure_hint,
+        current_round_results = analyze_with_gpt_in_three_rounds(mythril_output, solidity_content, structure_hint,
                                                                  sol_file_name)
 
         for result_set in current_round_results:

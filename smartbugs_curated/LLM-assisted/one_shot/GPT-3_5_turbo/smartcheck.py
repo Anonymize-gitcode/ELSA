@@ -105,17 +105,18 @@ def analyze_common_vulnerabilities_with_gpt(smartcheck_output, solidity_content,
         solidity_response = solidity_content
 
     prompt = (
-        f"Please analyze the following Solidity code and smartcheck output to identify vulnerability types. Return the highest-risk vulnerability type. "
-        f"Detection range: 'SWC-100':'access_control', 'SWC-101':'arithmetic', 'SWC-102':'bad_randomness', "
+        f"Please analyze the following Solidity code and smartcheck output to identify vulnerability types and return the highest risk vulnerability type. "
+        f"Detection scope includes: 'SWC-100':'access_control', 'SWC-101':'arithmetic', 'SWC-102':'bad_randomness', "
         "'SWC-103':'denial_of_service', 'SWC-104':'front_running', 'SWC-105':'other', "
         "'SWC-106':'short_addresses', 'SWC-107':'reentrancy', 'SWC-108':'time_manipulation', "
         "'SWC-109':'unchecked_low_level_calls'.\n"
-        f"Return format:\n"
-        f"[SWC code]: Vulnerability at line: [specific line], brief description.\n"
-        f"Example: SWC-100: Vulnerability at line: 52 \n SWC-107: Not found\n"
         f"Solidity code:\n{solidity_response}\n\n"
         f"Contract structure hints:\n{structure_hint}\n"
         f"smartcheck output:\n{smartcheck_output_str}\n"
+        f"Response format:\n"
+        f"[SWC code]: Vulnerability line number: [specific line]. Do not return other irrelevant information.\n"
+        f"Example output: SWC-101: Vulnerability line number: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found.\n"
         f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 
@@ -124,7 +125,7 @@ def analyze_common_vulnerabilities_with_gpt(smartcheck_output, solidity_content,
 
     vulnerabilities = []
     if isinstance(gpt_response, str):
-        matches = re.findall(r'SWC-(\d+): vulnerabilities at line: (\d+|不存在)', gpt_response)
+        matches = re.findall(r'SWC-(\d+): vulnerabilities at line: (\d+|not found)', gpt_response)
 
         for match in matches:
             swc_code = match[0].strip()

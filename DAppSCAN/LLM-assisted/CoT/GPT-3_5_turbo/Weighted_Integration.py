@@ -69,8 +69,8 @@ def get_swc_codes_from_sol(sol_file):
 def select_final_vulnerability(mythril_result, slither_result, smartcheck_result):
     """Calculate optimal vulnerability based on technique weights"""
     technique_weights = {
-        'mythril': 0.1,
-        'slither': 0.3,
+        'mythril': 0.3,
+        'slither': 0.2,
         'smartcheck': 0.1
     }
 

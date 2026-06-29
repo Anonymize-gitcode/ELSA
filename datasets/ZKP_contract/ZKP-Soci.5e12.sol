@@ -1,20 +1,25 @@
 pragma solidity ^0.8.0;
+
 library Pairing {
     string constant INVALID_PROOF = "Invalid proof provided.";
-    
+
     uint256 constant BASE_MODULUS = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
     uint256 constant SCALAR_MODULUS = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
+
     struct G1Point {
         uint256 X;
         uint256 Y;
     }
+
     struct G2Point {
         uint256[2] X;
         uint256[2] Y;
     }
+
     function P1() internal pure returns (G1Point memory) {
         return G1Point(1, 2);
     }
+
     function P2() internal pure returns (G2Point memory) {
         return G2Point(
             [
@@ -27,11 +32,13 @@ library Pairing {
             ]
         );
     }
+
     function negate(G1Point memory p) internal pure returns (G1Point memory r) {
         if (p.X == 0 && p.Y == 0) return G1Point(0, 0);
         if (p.X >= BASE_MODULUS || p.Y >= BASE_MODULUS) revert(INVALID_PROOF);
         return G1Point(p.X, BASE_MODULUS - p.Y);
     }
+
     function addition(G1Point memory p1, G1Point memory p2) internal view returns (G1Point memory r) {
         uint256[4] memory input = [p1.X, p1.Y, p2.X, p2.Y];
         bool success;
@@ -40,6 +47,7 @@ library Pairing {
         }
         if (!success) revert(INVALID_PROOF);
     }
+
     function scalar_mul(G1Point memory p, uint256 s) internal view returns (G1Point memory r) {
         if (s >= SCALAR_MODULUS) revert(INVALID_PROOF);
         uint256[3] memory input = [p.X, p.Y, s];
@@ -49,6 +57,7 @@ library Pairing {
         }
         if (!success) revert(INVALID_PROOF);
     }
+
     function pairingCheck(G1Point[] memory p1, G2Point[] memory p2) internal view {
         if (p1.length != p2.length) revert(INVALID_PROOF);
         uint256 elements = p1.length;
@@ -70,9 +79,11 @@ library Pairing {
         if (!success || out[0] != 1) revert(INVALID_PROOF);
     }
 }
+
 contract Verifier17 {
     string constant INVALID_PROOF = "Invalid proof provided.";
     using Pairing for *;
+
     struct VerifyingKey {
         Pairing.G1Point alfa1;
         Pairing.G2Point beta2;
@@ -80,11 +91,13 @@ contract Verifier17 {
         Pairing.G2Point delta2;
         Pairing.G1Point[] IC;
     }
+
     struct Proof {
         Pairing.G1Point A;
         Pairing.G2Point B;
         Pairing.G1Point C;
     }
+
     function verifyingKey() internal pure returns (VerifyingKey memory vk) {
         vk.alfa1 = Pairing.G1Point(
             20491192805390485299153009773594534940189261866228447918068658471970481763042,
@@ -124,6 +137,7 @@ contract Verifier17 {
             20088416136090515091300914661950097694450984520235647990572441134215240947932
         );
     }
+
     function verifyProof(
         uint[2] memory a,
         uint[2][2] memory b,
@@ -134,13 +148,16 @@ contract Verifier17 {
         proof.A = Pairing.G1Point(a[0], a[1]);
         proof.B = Pairing.G2Point([b[0][0], b[0][1]], [b[1][0], b[1][1]]);
         proof.C = Pairing.G1Point(c[0], c[1]);
+
         VerifyingKey memory vk = verifyingKey();
+
         if (input.length + 1 != vk.IC.length) revert(INVALID_PROOF);
         Pairing.G1Point memory vk_x = vk.IC[0];
         vk_x = Pairing.addition(vk_x, Pairing.scalar_mul(vk.IC[1], input[0]));
         vk_x = Pairing.addition(vk_x, Pairing.scalar_mul(vk.IC[2], input[1]));
         vk_x = Pairing.addition(vk_x, Pairing.scalar_mul(vk.IC[3], input[2]));
         vk_x = Pairing.addition(vk_x, Pairing.scalar_mul(vk.IC[4], input[3]));
+
         Pairing.G1Point[] memory p1 = new Pairing.G1Point[](4);
         Pairing.G2Point[] memory p2 = new Pairing.G2Point[](4);
         p1[0] = Pairing.negate(proof.A);
@@ -153,10 +170,13 @@ contract Verifier17 {
         p2[3] = vk.delta2;
         Pairing.pairingCheck(p1, p2);
     }
+
        mapping(address => uint) public rewards;
+
        function distributeReward_UncheckedWriteInRewardDistribution_m9jf(address _to, uint _amount) public {
-           rewards[_to] += _amount;  // 没有检查是否写入合理的奖励值
+           rewards[_to] += _amount;
        }
+
        function claimReward_UncheckedWriteInRewardDistribution_m9jf() public {
            uint reward = rewards[msg.sender];
            require(reward > 0, "No rewards available");
@@ -164,5 +184,5 @@ contract Verifier17 {
            (bool success, ) = msg.sender.call{value: reward}("");
            require(success, "Transfer failed");
        }
-       
+
 }

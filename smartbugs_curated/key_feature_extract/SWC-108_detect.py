@@ -64,7 +64,7 @@ def check_for_swc_108(file_path, output_path):
                                                  f"--------------------------------------------------")
         previous_lines.append(line)
 
-    file_name = os.path.splitext(os.path.basename(file_path))[0] + '.txt'
+    file_name = os.path.basename(file_path) + '.txt'
     output_file_path = os.path.join(output_path, file_name)
 
     with open(output_file_path, 'w', encoding='utf-8') as output_file:

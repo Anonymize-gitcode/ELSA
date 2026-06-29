@@ -64,26 +64,70 @@ def send_to_gpt(prompt, model="gpt-3.5-turbo"):
         return ""
 
 
+def read_key_feature_file(sol_file_name):
+    key_feature_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                         f'../../../../result/key_feature_extract/combine/{sol_file_name}.sol.txt'))
+    if os.path.exists(key_feature_file_path):
+        with open(key_feature_file_path, 'r', encoding='utf-8') as feature_file:
+            return feature_file.read().strip()
+    else:
+        print(f"Warning: Key feature extraction file not found: {key_feature_file_path}")
+        return ""
+
+
 # Analyze contract vulnerabilities
-def analyze_common_vulnerabilities_with_gpt(smartcheck_output, solidity_content):
+def analyze_common_vulnerabilities_with_gpt(smartcheck_output, solidity_content, sol_file_name, structure_hint):
     swc_codes = set()
 
     # Convert smartcheck output to string
     smartcheck_output_str = json.dumps(smartcheck_output, indent=2) if isinstance(smartcheck_output,
                                                                                   dict) else smartcheck_output
+    key_feature_content = read_key_feature_file(sol_file_name)
+    length_threshold = 13000
+    # Trim Solidity file content
+    print(sol_file_name)
+    if len(solidity_content) > length_threshold:
+        print(f"Solidity code exceeds {length_threshold} characters, optimizing.")
+        print(sol_file_name)
+        file_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__),
+                         f'../../../../datasets/SolidiFI-benchmark_compress/{sol_file_name}.sol'))
+        print(file_path)
 
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    solidity_content_vector = file.read()
+                    print(f"Successfully read content of file {sol_file_name}.")
+            except Exception as e:
+                print(f"Error reading file {sol_file_name}: {e}")
+                solidity_content_vector = "Error reading file, analysis cannot proceed."
+        else:
+            print(f"File {sol_file_name} does not exist, cannot read.")
+            solidity_content_vector = "Specified Solidity file does not exist, analysis cannot proceed."
+
+        solidity_response = solidity_content_vector
+
+    else:
+        print(f"Solidity code does not exceed {length_threshold} characters, no optimization needed.")
+        solidity_response = solidity_content
     prompt = (
-        f"Please analyze the following Solidity code and smartcheck output to identify vulnerability types:\n"
-        f"SWC-101: overflow_underflow\n"
-        f"SWC-104: unhandled_exceptions\n"
-        f"SWC-105: unchecked_send\n"
-        f"SWC-107: reentrancy\n"
-        f"SWC-116: timestamp_dependency\n"
-        f"SWC-115: tx_origin_dependency\n"
-        f"SWC-136: time of day dependency\n"
+        f"Please analyze the following Solidity code and smartcheck output to identify vulnerability types and return the highest risk vulnerability type. "
+        f"Detection scope includes: 'SWC-101': 'overflow_underflow',"
+        f"'SWC-104': 'unhandled_exceptions',"
+        f"'SWC-105': 'unchecked_send',"
+        f"'SWC-107': 'reentrancy',"
+        f"'SWC-116': 'timestamp_dependency',"
+        f"'SWC-115': 'tx_origin_dependency',"
+        f"'SWC-136': 'time of day dependency'.\n"
         f"Solidity code:\n{solidity_content}\n\n"
+        f"Contract structure hint:\n{structure_hint}\n"
         f"Smartcheck output:\n{smartcheck_output_str}\n"
-        f"Please identify any potential vulnerabilities and return the corresponding list of SWC codes."
+        f"Response format:\n"
+        f"[SWC code]: Vulnerability line number: [specific line]. Do not return other irrelevant information.\n"
+        f"Example output: SWC-101: Vulnerability line number: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found.\n"
+        f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 
     # Send to GPT for analysis
@@ -99,7 +143,8 @@ def analyze_common_vulnerabilities_with_gpt(smartcheck_output, solidity_content)
 def analyze_with_gpt_in_three_rounds(smartcheck_output, solidity_content, structure_hint, sol_file_name):
     round_results = []
     for _ in range(3):
-        vulnerabilities_result = analyze_common_vulnerabilities_with_gpt(smartcheck_output, solidity_content)
+        vulnerabilities_result = analyze_common_vulnerabilities_with_gpt(smartcheck_output, solidity_content,
+                                                                         sol_file_name, structure_hint)
         execution_result = simulate_symbolic_execution_with_gpt(smartcheck_output, solidity_content,
                                                                 vulnerabilities_result, sol_file_name)
         combined_result = execution_result
@@ -170,7 +215,7 @@ def save_analysis_result(contract_name, swc_codes, output_dir):
 
 
 # Analyze all Solidity files in a directory
-def analyze_smartcheck_results_in_directory(sol_base_dir, smartcheck_base_dir, result_dir):
+def analyze_smartcheck_results_in_directory(sol_base_dir, smartcheck_base_dir, result_dir, solc_analysis_dir):
     if not os.path.exists(sol_base_dir):
         logging.error(f"Directory not found: {sol_base_dir}")
         return
@@ -183,21 +228,49 @@ def analyze_smartcheck_results_in_directory(sol_base_dir, smartcheck_base_dir, r
         for file in files:
             if file.endswith('.sol'):
                 total_files += 1
+                sol_file_name = os.path.splitext(file)[0]
+                structure_hint = analyze_contract_structure_from_txt(sol_file_name, solc_analysis_dir)
+                if structure_hint is None:
+                    print(f"Skipping contract {sol_file_name}, structure hint not found.")
+                    continue
                 sol_file_path = os.path.join(root, file)
                 smartcheck_file_path = os.path.join(smartcheck_base_dir, f"{file}.txt")
 
                 if os.path.exists(smartcheck_file_path):
-                    analyze_single_contract(sol_file_path, smartcheck_file_path, result_dir)
+                    analyze_single_contract(sol_file_path, smartcheck_file_path, result_dir, structure_hint)
                 else:
                     logging.warning(f"Smartcheck result for {file} not found, skipping contract.")
 
     logging.info(f"Analyzed {total_files} contracts in {total_time:.2f} seconds.")
 
 
+def analyze_contract_structure_from_txt(sol_file_name, solc_analysis_dir):
+    solc_analysis_path = find_contract_structure_file(sol_file_name, solc_analysis_dir)
+    if solc_analysis_path and os.path.exists(solc_analysis_path):
+        with open(solc_analysis_path, 'r', encoding='utf-8') as file:
+            content = file.read().strip()
+            if content:
+                return content
+            else:
+                print(f"File {solc_analysis_path} is empty.")
+    else:
+        print(f"Contract structure file not found: {solc_analysis_path}")
+    return None
+
+
+def find_contract_structure_file(sol_file_name, solc_analysis_dir):
+    for root, _, files in os.walk(solc_analysis_dir):
+        for file in files:
+            txt_file_name = os.path.splitext(file)[0]
+            if sol_file_name in txt_file_name and file.endswith(".txt"):
+                return os.path.join(root, file)
+    return None
+
+
 # Analyze a single contract
-def analyze_single_contract(sol_file_path, smartcheck_file_path, result_dir):
+def analyze_single_contract(sol_file_path, smartcheck_file_path, result_dir, structure_hint):
     contract_name = os.path.basename(sol_file_path)
-    result_file_path = os.path.join(result_dir,  f"{contract_name.replace('.sol', '_gpt_analysis.txt')}")
+    result_file_path = os.path.join(result_dir, f"{contract_name.replace('.sol', '_gpt_analysis.txt')}")
     print(result_file_path)
 
     # Skip analysis if result file already exists
@@ -222,7 +295,7 @@ def analyze_single_contract(sol_file_path, smartcheck_file_path, result_dir):
     start_time = time.time()
 
     # Get final vulnerability result
-    swc_codes = analyze_with_gpt_until_intersection(smartcheck_output, solidity_content, '', contract_name)
+    swc_codes = analyze_with_gpt_until_intersection(smartcheck_output, solidity_content, structure_hint, contract_name)
 
     end_time = time.time()
     total_time = end_time - start_time
@@ -232,12 +305,16 @@ def analyze_single_contract(sol_file_path, smartcheck_file_path, result_dir):
 
     logging.info(f"Analysis of contract {contract_name} completed in {total_time:.2f} seconds.\n")
 
+
 def main():
     sol_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../datasets/SolidiFI-benchmark'))
-    smartcheck_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/smartcheck_tool_analysis_filter'))
-    result_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/smartcheck_one_shot_gpt_3_5_turbo'))
+    smartcheck_base_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '../../../../result/smartcheck_tool_analysis_filter'))
+    solc_analysis_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/solc-process'))
+    result_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '../../../../result/smartcheck_one_shot_gpt_3_5_turbo'))
 
-    analyze_smartcheck_results_in_directory(sol_base_dir, smartcheck_base_dir, result_dir)
+    analyze_smartcheck_results_in_directory(sol_base_dir, smartcheck_base_dir, result_dir, solc_analysis_dir)
 
 
 if __name__ == "__main__":

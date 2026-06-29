@@ -50,7 +50,7 @@ def find_common_prefix(strings):
 # Configuration parameters
 MATCH_PATTERN = 'first_delimiter'  # Optional: 'first_delimiter', 'numeric_suffix', 'custom_regex'
 MIN_COMMON_LENGTH = 3  # Minimum common prefix length for additional checks
-CHECK_COMMON_PREFIX = True  # Whether to check for common prefix
+CHECK_COMMON_PREFIX = False  # Whether to check for common prefix
 
 # Set path
 source_dir = os.path.dirname(__file__)
@@ -58,9 +58,8 @@ source_dir = os.path.dirname(__file__)
 merge_dir = os.path.join(source_dir, '../../result/key_feature_extract/combine')
 os.makedirs(merge_dir, exist_ok=True)
 
-subfolders = ["swc100", "swc101", "swc102", "swc103", "swc104", "swc105", "swc107",
-              "swc108", "swc111", "swc113", "swc114", "swc116", "swc118",
-              "swc119", "swc120", "swc123", "swc126", "swc128", "swc129"]
+subfolders = ["SWC-100","SWC-101","SWC-102","SWC-103","SWC-104","SWC-105","SWC-107","SWC-108","SWC-111","SWC-113",
+              "SWC-114","SWC-116","SWC-118","SWC-119","SWC-120","SWC-123","SWC-126","SWC-128","SWC-129"]
 
 # Collect all file information
 all_files = []
@@ -69,7 +68,7 @@ encodings = ['utf-8', 'gbk', 'latin-1', 'iso-8859-1', 'utf-16', 'cp1252']
 print("Collecting all files...")
 for subfolder in subfolders:
     # Directly construct subfolder path to avoid potential issues with os.path.join
-    subfolder_path = f'C:/Users/wjx/PycharmProjects/ELSA/DeFi_DAPP/key_feature_extract/{subfolder}'
+    subfolder_path = os.path.join(source_dir, f'../../result/key_feature_extract/{subfolder}')
     if not os.path.exists(subfolder_path):
         print(f"Warning: Subfolder does not exist - {subfolder_path}")
         continue
@@ -126,12 +125,7 @@ for file_info in all_files:
         continue
 
     # Get prefix based on the selected pattern
-    if MATCH_PATTERN == 'first_delimiter':
-        key = file_info['prefix1']
-    elif MATCH_PATTERN == 'numeric_suffix':
-        key = file_info['prefix2']
-    else:  # custom_regex
-        key = file_info['prefix3']
+    key = file_info['name']
 
     if key not in groups:
         groups[key] = []
@@ -161,34 +155,15 @@ if CHECK_COMMON_PREFIX and len(groups) > 1:
                 print(f"Merged groups: {group_keys[i]} and {group_keys[j]} -> Common prefix: {common}")
                 break
 
-# Save group information for debugging
-group_info_file = os.path.join(merge_dir, "grouping_info.txt")
-with open(group_info_file, 'w', encoding='utf-8') as f:
-    f.write(f"File grouping information (total {len(groups)} groups)\n")
-    f.write(f"Matching pattern: {MATCH_PATTERN}\n\n")
-    for key, files in groups.items():
-        f.write(f"Group '{key}' contains {len(files)} files:\n")
-        for file in files:
-            f.write(
-                f"  - {file['name']} (Prefix1: {file['prefix1']}, Prefix2: {file['prefix2']}, Prefix3: {file['prefix3']})\n")
-        f.write("\n")
-
 # Merge and save results
 print("Merging files...")
 for key, files in groups.items():
     if not files:
         continue
 
-    merged_parts = []
-    merged_parts.append(f"===== Merged group: {key} =====")
-    merged_parts.append(f"This file contains the contents of {len(files)} source files\n")
-
-    for file_info in files:
-        merged_parts.append(f"\n\n===== From file: {file_info['name']} =====")
-        merged_parts.append(file_info['content'])
-
-    merged_content = "\n".join(merged_parts)
-    merged_file_name = f"{key}_merged.txt"
+    # pure concatenation (no headers), consistent with the other three datasets
+    merged_content = "\n\n".join(f['content'] for f in files)
+    merged_file_name = key
     merged_file_path = os.path.join(merge_dir, merged_file_name)
 
     with open(merged_file_path, 'w', encoding='utf-8') as f:
@@ -196,15 +171,4 @@ for key, files in groups.items():
 
     print(f"Generated merged file: {merged_file_name} (contains {len(files)} source files)")
 
-# Save list of unmerged files (if any)
-unmerged_files = [f for f in all_files if f['content'] is None]
-if unmerged_files:
-    unmerged_file = os.path.join(merge_dir, "unmerged_files.txt")
-    with open(unmerged_file, 'w', encoding='utf-8') as f:
-        f.write(f"Unmerged files ({len(unmerged_files)}):\n")
-        for file in unmerged_files:
-            f.write(f"  - {file['path']}\n")
-    print(f"Recorded unmerged files to: {unmerged_file}")
-
 print(f"\nAll operations completed. Merged results saved in: {merge_dir}")
-print(f"Grouping information saved in: {group_info_file}")

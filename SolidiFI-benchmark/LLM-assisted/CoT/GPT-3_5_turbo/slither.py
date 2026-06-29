@@ -87,19 +87,22 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, st
 
     if len(solidity_content) > length_threshold:
         print(f"Solidity code exceeds {length_threshold} characters, optimizing.")
-        prompt_for_solidity = (
-            f"Please optimize the following Solidity code by removing redundant parts while retaining all functions and code segments related to vulnerabilities to ensure vulnerability analysis is not affected:\n"
-            f"Optimization requirements:\n"
-            f"1. Remove unused variables, functions, and irrelevant code to avoid affecting vulnerability analysis.\n"
-            f"2. Retain all functions potentially related to vulnerabilities, especially those flagged by slither or other techniques.\n"
-            f"3. Ensure that the core functionality of each function is preserved. The optimized code should retain its functionality and vulnerability analysis consistency.\n\n"
-            f"Solidity file content:\n{solidity_content}\n\n"
-        )
-        try:
-            solidity_response = send_full_text_to_gpt(prompt_for_solidity)
-        except Exception as e:
-            print(f"Error calling GPT: {e}")
-            solidity_response = "An error occurred during optimization."
+        file_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), f'../../../../datasets/SolidiFI-benchmark_compress/{sol_file_name}.sol'))
+        print(file_path)
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    solidity_content_vector = file.read()
+                    print(f"Successfully read content of file {sol_file_name}.")
+            except Exception as e:
+                print(f"Error reading file {sol_file_name}: {e}")
+                solidity_content_vector = "Error reading file, analysis cannot continue."
+        else:
+            print(f"File {sol_file_name} does not exist, cannot read.")
+            solidity_content_vector = "Specified Solidity file does not exist, analysis cannot continue."
+
+        solidity_response = solidity_content_vector
     else:
         print(f"Solidity code length does not exceed {length_threshold} characters, no optimization needed.")
         solidity_response = solidity_content
@@ -122,24 +125,25 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, st
         print("No heuristic summary obtained.")
 
     prompt_for_analysis = (
-        f"Please analyze the vulnerabilities in the contract from the following Solidity file content and slither output, using the heuristic prompts.\n"
-        f"Check each function carefully, ensuring to analyze its functionality and potential risks. Return a precise list of SWC codes without any fix suggestions or scope descriptions.\n\n"
-        f"Detection includes the following vulnerabilities:\n"
-        f"SWC-101: overflow_underflow\n"
-        f"SWC-104: unhandled_exceptions\n"
-        f"SWC-105: unchecked_send\n"
-        f"SWC-107: reentrancy\n"
-        f"SWC-116: timestamp_dependency\n"
-        f"SWC-115: tx_origin_dependency\n"
-        f"SWC-136: time of day dependency\n"
-
+        f"Please analyze vulnerabilities in the following Solidity file, using risk function clues from the inspiration hints. Return the highest risk vulnerability type.\n"
+        f"Summarize and confirm existing SWC code vulnerabilities. Do not provide fix suggestions or detection ranges. Ensure the vulnerabilities exist.\n\n"
+        f"Detection range: 'SWC-101': 'overflow_underflow',"
+        f"'SWC-104': 'unhandled_exceptions',"
+        f"'SWC-105': 'unchecked_send',"
+        f"'SWC-107': 'reentrancy',"
+        f"'SWC-116': 'timestamp_dependency',"
+        f"'SWC-115': 'tx_origin_dependency',"
+        f"'SWC-136': 'time of day dependency'.\n"
         f"Analysis process:\n"
         f"1. Check each function, identify potential vulnerabilities, especially those related to permission control, arithmetic operations, and external calls.\n"
         f"2. Ensure accurate SWC codes and specify the vulnerable function or code segment.\n\n"
-
         f"Solidity file content:\n{solidity_response}\n\n"
         f"slither output:\n{slither_output_str}\n\n"
         f"Heuristic prompts:\n{inspiration_response}\n\n"
+        f"Return format:\n"
+        f"[SWC code]: Vulnerability line: [specific line], brief description\n"
+        f"Example output: SWC-104: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found."
     )
 
     gpt_response = send_full_text_to_gpt(prompt_for_analysis)
@@ -178,20 +182,24 @@ def simulate_symbolic_execution_with_gpt(slither_output, solidity_content, vulne
     slither_output_str = json.dumps(slither_output, indent=2) if isinstance(slither_output, dict) else slither_output
 
     prompt = (
-        f"Based on symbolic execution logic, combined with the following Solidity code and slither output and known vulnerabilities, "
-        f"simulate the execution paths of the smart contract under different inputs, check for potential execution risks, and verify the authenticity of discovered vulnerabilities. Remove any false positives.\n"
-        f"Check each function carefully. Return a precise list of confirmed SWC codes. Do not provide fix suggestions or detection scopes.\n\n"
-        f"Known vulnerabilities: {','.join(vulnerabilities_found)}\n"
-        f"Detection includes:\n"
-        f"SWC-101: overflow_underflow\n"
-        f"SWC-104: unhandled_exceptions\n"
-        f"SWC-105: unchecked_send\n"
-        f"SWC-107: reentrancy\n"
-        f"SWC-116: timestamp_dependency\n"
-        f"SWC-115: tx_origin_dependency\n"
-        f"SWC-136: time of day dependency\n"
+        f"Based on the logic of symbolic execution techniques, and combining the following Solidity code and discovered vulnerabilities, return the highest-risk vulnerability type. "
+        f"Simulate execution paths of the smart contract under different inputs, inspect potential execution risks, and verify the validity of discovered vulnerabilities. "
+        f"Remove vulnerabilities that do not actually exist.\n"
+        f"Discovered vulnerabilities: {','.join(vulnerabilities_found)}\n"
+        f"Detection range: 'SWC-101': 'overflow_underflow',"
+        f"'SWC-104': 'unhandled_exceptions',"
+        f"'SWC-105': 'unchecked_send',"
+        f"'SWC-107': 'reentrancy',"
+        f"'SWC-116': 'timestamp_dependency',"
+        f"'SWC-115': 'tx_origin_dependency',"
+        f"'SWC-136': 'time of day dependency'.\n"
         f"Solidity file content:\n{solidity_response}\n"
-        f"slither output:\n{slither_output_str}\n"
+        f"Contract structure hints:\n{structure_hint}\n"
+        f"Return format:\n"
+        f"[SWC code]: Vulnerability line: [specific line], brief description\n"
+        f"Example output: SWC-104: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found."
+        f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 
     gpt_response = send_full_text_to_gpt(prompt)
@@ -318,6 +326,12 @@ def analyze_slither_results_in_directory(sol_base_dir, slither_base_dir, solc_an
     print(f"Total analysis time for all files: {total_time:.2f} seconds")
 
 def main():
+    sol_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../datasets/DAppSCAN'))
+    slither_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/slither_tool_analysis_filter'))
+    solc_analysis_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/solc-process'))
+    result_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/slither_CoT_gpt_3_5_turbo'))
+    analyze_slither_results_in_directory(sol_base_dir, slither_base_dir, solc_analysis_dir, result_dir)
+
     sol_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../datasets/SolidiFI-benchmark'))
     slither_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/slither_tool_analysis_filter'))
     solc_analysis_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../result/solc-process'))

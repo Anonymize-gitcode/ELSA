@@ -142,6 +142,7 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, st
         f"Return format:\n"
         f"[SWC code]: Vulnerability line: [specific line], brief description\n"
         f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found."
     )
 
     gpt_response = send_full_text_to_gpt(prompt_for_analysis)
@@ -196,11 +197,12 @@ def simulate_symbolic_execution_with_gpt(slither_output, solidity_content, vulne
         f"'SWC-121':'Missing_Protection_Against_Signature_Replay_Attacks', "
         f"'SWC-124':'Write_to_Arbitrary_Storage_Location', "
         f"'SWC-128':'DoS_with_Block_Gas_Limit_Gas'.\n"
+        f"Solidity code:\n{solidity_response}\n"
+        f"Contract structure hints:\n{structure_hint}\n"
         f"Return format:\n"
         f"[SWC code]: Vulnerability line: [specific line], brief description\n"
         f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
-        f"Solidity code:\n{solidity_response}\n"
-        f"Contract structure hints:\n{structure_hint}\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found.\n"
         f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 

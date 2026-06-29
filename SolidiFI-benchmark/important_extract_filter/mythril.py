@@ -18,8 +18,8 @@ def filter_analysis_results(input_dir, output_dir):
 
         with open(output_file_path, 'w', encoding='utf-8') as outfile:
             for line in lines:
-                # Delete entire line containing "可能风险漏洞类型" ("Potential Risk Vulnerability Type")
-                if "可能风险漏洞类型" in line:
+                # Delete entire line containing "Potential Risk Vulnerability Type" ("Potential Risk Vulnerability Type")
+                if "Potential Risk Vulnerability Type" in line:
                     continue
                 # Delete entire line containing "Caller:" (commented out in original)
 

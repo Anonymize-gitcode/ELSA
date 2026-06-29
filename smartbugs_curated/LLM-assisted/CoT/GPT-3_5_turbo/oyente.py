@@ -124,9 +124,9 @@ def analyze_common_vulnerabilities_with_gpt(oyente_output, solidity_content, str
         print("No summarized inspiration obtained.")
 
     prompt_for_analysis = (
-        f"Please analyze the vulnerabilities in the following Solidity file, using the risk hints to find specific code vulnerabilities. Return the highest risk vulnerability type.\n"
-        f"Summarize the confirmed SWC code vulnerabilities. Do not give remediation suggestions. Ensure vulnerabilities exist.\n\n"
-        f"Scope: 'SWC-100':'access_control', 'SWC-101':'arithmetic', 'SWC-102':'bad_randomness', "
+        f"Please analyze vulnerabilities in the following Solidity file, using risk function clues from the inspiration hints. Return the highest risk vulnerability type.\n"
+        f"Summarize and confirm existing SWC code vulnerabilities. Do not provide fix suggestions or detection ranges. Ensure the vulnerabilities exist.\n\n"
+        f"Detection range: 'SWC-100':'access_control', 'SWC-101':'arithmetic', 'SWC-102':'bad_randomness', "
         "'SWC-103':'denial_of_service', 'SWC-104':'front_running', 'SWC-105':'other', "
         "'SWC-106':'short_addresses', 'SWC-107':'reentrancy', 'SWC-108':'time_manipulation', "
         "'SWC-109':'unchecked_low_level_calls'.\n"
@@ -138,8 +138,9 @@ def analyze_common_vulnerabilities_with_gpt(oyente_output, solidity_content, str
         f"oyente output:\n{oyente_output_str}\n\n"
         f"Inspiration hints:\n{inspiration_response}\n\n"
         f"Return format:\n"
-        f"[SWC Code]: Vulnerability at Line: [line number], brief description\n"
-        f"Example output: SWC-101: Vulnerability at Line: 52 \n SWC-107: Not Found\n"
+        f"[SWC code]: Vulnerability line: [specific line], brief description\n"
+        f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found."
     )
 
     gpt_response = send_full_text_to_gpt(prompt_for_analysis)
@@ -191,19 +192,20 @@ def simulate_symbolic_execution_with_gpt(oyente_output, solidity_content, vulner
     print(vulnerabilities_found)
 
     prompt = (
-        f"Based on the logic of symbolic execution techniques, analyze the following Solidity code and previously found vulnerabilities. "
-        f"Return the highest-risk vulnerability type. Simulate different input paths of the smart contract, check for execution risks, "
-        f"and verify the actual existence of previously found vulnerabilities. Remove any non-existent ones.\n"
-        f"Previously identified vulnerabilities: {','.join(vulnerabilities_found)}\n"
-        f"Scope: 'SWC-100':'access_control', 'SWC-101':'arithmetic', 'SWC-102':'bad_randomness', "
+        f"Based on the logic of symbolic execution techniques, and combining the following Solidity code and discovered vulnerabilities, return the highest-risk vulnerability type. "
+        f"Simulate execution paths of the smart contract under different inputs, inspect potential execution risks, and verify the validity of discovered vulnerabilities. "
+        f"Remove vulnerabilities that do not actually exist.\n"
+        f"Discovered vulnerabilities: {','.join(vulnerabilities_found)}\n"
+        f"Detection range: 'SWC-100':'access_control', 'SWC-101':'arithmetic', 'SWC-102':'bad_randomness', "
         "'SWC-103':'denial_of_service', 'SWC-104':'front_running', 'SWC-105':'other', "
         "'SWC-106':'short_addresses', 'SWC-107':'reentrancy', 'SWC-108':'time_manipulation', "
         "'SWC-109':'unchecked_low_level_calls'.\n"
-        f"Return format:\n"
-        f"[SWC Code]: Vulnerability at Line: [line number], brief description\n"
-        f"Example output: SWC-101: Vulnerability at Line: 52 \n SWC-107: Not Found\n"
         f"Solidity Code:\n{solidity_response}\n"
         f"Contract structure hints:\n{structure_hint}\n"
+        f"Return format:\n"
+        f"[SWC code]: Vulnerability line: [specific line], brief description\n"
+        f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found.\n"
         f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 

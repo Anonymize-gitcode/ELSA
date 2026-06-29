@@ -41,7 +41,7 @@ def check_for_vulnerabilities(file_path, output_path):
 
         # If vulnerabilities are found, save them to a file
         if vulnerabilities_found:
-            file_name = os.path.splitext(os.path.basename(file_path))[0] + '.txt'
+            file_name = file_name = os.path.basename(file_path) + '.txt'
             output_file_path = os.path.join(output_path, file_name)
 
             with open(output_file_path, 'w', encoding='utf-8') as output_file:
@@ -49,7 +49,7 @@ def check_for_vulnerabilities(file_path, output_path):
             return True  # Indicates vulnerabilities were found in the file
         else:
             # If no vulnerabilities found, write a message to the file
-            file_name = os.path.splitext(os.path.basename(file_path))[0] + '.txt'
+            file_name = file_name = os.path.basename(file_path) + '.txt'
             output_file_path = os.path.join(output_path, file_name)
 
             with open(output_file_path, 'w', encoding='utf-8') as output_file:

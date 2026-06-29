@@ -128,9 +128,9 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, st
         print("No summarized inspiration hints obtained.")
 
     prompt_for_analysis = (
-        f"Please analyze vulnerabilities in the following Solidity file content, using inspiration hints to locate specific code issues. Return the most critical vulnerability type.\n"
-        f"Summarize the confirmed SWC codes. Do not provide fix suggestions or detection scopes. Ensure the vulnerability exists.\n\n"
-        f"Detection scope: 'SWC-101':'Integer_Overflow_and_Underflow', "
+        f"Please analyze vulnerabilities in the following Solidity file, using risk function clues from the inspiration hints. Return the highest risk vulnerability type.\n"
+        f"Summarize and confirm existing SWC code vulnerabilities. Do not provide fix suggestions or detection ranges. Ensure the vulnerabilities exist.\n\n"
+        f"Detection range: 'SWC-101':'Integer_Overflow_and_Underflow', "
         f"'SWC-105':'Unprotected_Ether_Withdrawal', "
         f"'SWC-107':'Reentrancy', "
         f"'SWC-110':'Assert_Violation', "
@@ -138,17 +138,17 @@ def analyze_common_vulnerabilities_with_gpt(slither_output, solidity_content, st
         f"'SWC-124':'Write_to_Arbitrary_Storage_Location', "
         f"'SWC-128':'DoS_with_Block_Gas_Limit_Gas'.\n"
         f"Analysis steps:\n"
-        f"1. Check each function to identify potential vulnerabilities, especially in access control, arithmetic, and external calls.\n"
-        f"2. Ensure returned SWC codes are accurate, indicating vulnerable functions or code segments.\n\n"
-        f"Contract structure hint:\n{structure_hint}\n"
+        f"1. Check each function and identify potential vulnerabilities, focusing on permission control, arithmetic operations, external calls, etc.\n"
+        f"2. Ensure the SWC codes are accurate and indicate the specific function or code segment.\n\n"
+        f"Contract structure hints:\n{structure_hint}\n"
         f"Solidity file content:\n{solidity_response}\n\n"
         f"Slither output:\n{slither_output_str}\n\n"
         f"Inspiration hints:\n{inspiration_response}\n\n"
         f"Return format:\n"
-        f"[SWC code]: Vulnerability at line: [line number]. Do not return unrelated information.\n"
-        f"Example output: SWC-101: Vulnerability at line: 52 \n SWC-107: Not present\n"
+        f"[SWC code]: Vulnerability line: [specific line], brief description\n"
+        f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found."
     )
-
     gpt_response = send_full_text_to_gpt(prompt_for_analysis)
     print(gpt_response)
 
@@ -195,13 +195,11 @@ def simulate_symbolic_execution_with_gpt(slither_output, solidity_content, vulne
     slither_output_str = json.dumps(slither_output, indent=2) if isinstance(slither_output, dict) else slither_output
     print(vulnerabilities_found)
     prompt = (
-        f"Based on symbolic execution logic, and the following Solidity code and discovered vulnerabilities, return the highest risk vulnerability type. "
-        f"Simulate execution paths under different inputs, check for potential execution risks, and validate the discovered vulnerabilities.\n"
-        f"Return format:\n"
-        f"Example output: SWC-101: Vulnerability at line: 52 \n SWC-107: Not present\n"
-        f"Do not return unrelated information.\n"
+        f"Based on the logic of symbolic execution techniques, and combining the following Solidity code and discovered vulnerabilities, return the highest-risk vulnerability type. "
+        f"Simulate execution paths of the smart contract under different inputs, inspect potential execution risks, and verify the validity of discovered vulnerabilities. "
+        f"Remove vulnerabilities that do not actually exist.\n"
         f"Discovered vulnerabilities: {','.join(vulnerabilities_found)}\n"
-        f"Detection scope: 'SWC-101':'Integer_Overflow_and_Underflow', "
+        f"Detection range: 'SWC-101':'Integer_Overflow_and_Underflow', "
         f"'SWC-105':'Unprotected_Ether_Withdrawal', "
         f"'SWC-107':'Reentrancy', "
         f"'SWC-110':'Assert_Violation', "
@@ -209,8 +207,12 @@ def simulate_symbolic_execution_with_gpt(slither_output, solidity_content, vulne
         f"'SWC-124':'Write_to_Arbitrary_Storage_Location', "
         f"'SWC-128':'DoS_with_Block_Gas_Limit_Gas'.\n"
         f"Solidity code:\n{solidity_response}\n"
-        f"Contract structure hint:\n{structure_hint}\n"
-        f"Please identify any potential vulnerabilities and return the corresponding SWC code list.\n"
+        f"Contract structure hints:\n{structure_hint}\n"
+        f"Return format:\n"
+        f"[SWC code]: Vulnerability line: [specific line], brief description\n"
+        f"Example output: SWC-101: Vulnerability line: 52 \n SWC-107: Not found\n"
+        f"If no vulnerabilities are found, the format is: SWC-000: No vulnerabilities found.\n"
+        f"Please identify any potential vulnerabilities and return the corresponding SWC code list."
     )
 
     gpt_response = send_full_text_to_gpt(prompt)
