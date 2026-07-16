@@ -1,0 +1,18 @@
+# Keep the build context small: the container synthesizes datasets/ZKP_contract
+# from the bundled smoke_test/*.sol contracts (or a mounted /elsa/input_contracts).
+.git
+.idea
+# Never bake local secrets into the image (.env.example is still included).
+.env
+# Local test outputs must never be baked into the image (may contain keys used at runtime).
+experiment_results/
+datasets/
+result/
+**/result/
+**/__pycache__/
+**/*.pyc
+*.eps
+# Exported image archives must NOT be copied into the image (would bloat it ~2GB
+# and could nest a pre-fix image containing runtime keys).
+*.tar
+*.tar.gz
