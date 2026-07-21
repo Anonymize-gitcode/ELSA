@@ -99,7 +99,7 @@ def analyze_common_vulnerabilities_with_gpt(securify_output, solidity_content, s
         if os.path.exists(file_path):
             try:
                 with open(file_path, 'r', encoding='utf-8') as file:
-                    solidity_content_vector = file.read()
+                    solidity_content_vector = clean_solidity_comments(file.read())
                     print(f"Successfully read content of file {sol_file_name}.")
             except Exception as e:
                 print(f"Error reading file {sol_file_name}: {e}")
@@ -283,7 +283,7 @@ def analyze_single_contract(sol_file_path, securify_file_path, result_dir, struc
 
     # Read Solidity contract content
     with open(sol_file_path, 'r', encoding='utf-8') as sol_file:
-        solidity_content = sol_file.read()
+        solidity_content = clean_solidity_comments(sol_file.read())
 
     # Read securify output
     securify_output = read_securify_result(securify_file_path)
