@@ -1,0 +1,19 @@
+# Secrets / local configuration
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# IDE / editor config
+.idea/
+.vscode/
+
+# ELSA generated pipeline outputs
+result/
+smoke_test/result/
+experiment_results/
+
+# Exported Docker image tarball (upload to Zenodo; do not commit)
+*.tar
+*.tar.gz
