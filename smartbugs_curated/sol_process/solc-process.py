@@ -39,36 +39,38 @@ def split_content(content, max_tokens=MAX_TOKENS):
 
 def summarize_content(content):
     """
-    Use GPT to compress file content and retain important parts.
+    Use GPT to condense file content while retaining important parts.
     """
     try:
-        # Use OpenAI Chat API to compress the content
+        # Call OpenAI's chat API to condense the content
         response = openai.ChatCompletion.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),  # or use "gpt-4"
+            model=os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),  # Or use "gpt-4"
             messages=[
-                {"role": "system", "content": "You are a smart contract code summarization expert, focusing on extracting the most critical information from code to inspire GPT."},
+                {"role": "system", "content": "You are an expert in smart contract code distillation, focused on extracting the most critical information from the code to guide GPT."},
                 {"role": "user",
-                 "content": f"Please summarize the following contract code, retaining key functions, variable definitions, and important logical structures to inspire GPT. Extract important information based on contract definitions (contract name, function [visibility, mutability, parameters]) and logic structure:"
-                            f"Example template:\nKey functions and variable definitions:\n"
-                            f"- **Contract Definition**:\n"
-                            f"  - Contract Name: CALLER\n"
-                            f"  - Function: CALLADDRESS\n"
-                            f"      - Visibility: PUBLIC\n"
-                            f"      - State Mutability: NONPAYABLE\n"
-                            f"      - Parameters: A (type ADDRESS)\n"
-                            f"- **Logic Structure**:\n"
-                            f"  - The contract definition includes a function named CALLADDRESS, which has public visibility and nonpayable mutability. The function has a parameter A of type ADDRESS.\n"
-                            f"  - The function includes an expression statement that accesses address A by calling the CALL function.\n\n{content}"}
+                 "content": f"Please summarize the following smart contract code content, keeping key functions, variable definitions, and important logic structures to guide GPT."
+                            f"Summarize according to contract definition (contract name, function [visibility, mutability, parameters]) and logical structure:"
+                            f"Sample template: Key function and variable definitions:"
+                            f"- **Contract Definition**:"
+                            f"  - Contract Name: CALLER"
+                            f"  - Function: CALLADDRESS"
+                            f"      - Visibility: PUBLIC"
+                            f"      - Mutability: NONPAYABLE"
+                            f"      - Parameters: A (type ADDRESS)"
+                            f"- **Logical Structure**:"
+                            f"  - The contract definition includes a function named CALLADDRESS, which has public visibility and is nonpayable. The function has one parameter A of type ADDRESS."
+                            f"  - The function contains an expression statement that calls the CALL function to access address A."
+                            f"\n\n{content}"}
             ],
             temperature=0.5,
-            max_tokens=1024,  # Adjust max token number as needed
+            max_tokens=1024,  # Adjust as needed for generation
             top_p=1.0,
             frequency_penalty=0.0,
             presence_penalty=0.0
         )
         return response['choices'][0]['message']['content']
     except Exception as e:
-        print(f"Error when calling OpenAI API: {e}")
+        print(f"Error calling OpenAI API: {e}")
         return None
 
 
