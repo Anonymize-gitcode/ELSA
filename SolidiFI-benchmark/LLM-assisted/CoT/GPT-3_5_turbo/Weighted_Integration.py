@@ -41,10 +41,10 @@ def get_swc_codes_from_sol(sol_file):
 
 
 def select_final_vulnerability(swc_codes_by_technique):
-    """Select final vulnerability based on technique detection results"""
-
-    # Define base weights for techniques
-    base_weights = {
+    """Unified with ZKP: final vulnerability = the SWC with the highest accumulated
+    technique weight (weighted argmax). No threshold, no consistency multiplier, no
+    dynamic weight normalization."""
+    technique_weights = {
         'mythril': 0.15,
         'slither': 0.1,
         'smartcheck': 0.1,
@@ -52,44 +52,18 @@ def select_final_vulnerability(swc_codes_by_technique):
         'securify': 0.1,
         'oyente': 0.1,
     }
-
-    # Count valid techniques (techniques with detection results)
-    valid_techniques = {technique: swcs for technique, swcs in swc_codes_by_technique.items() if swcs}  # Filter out techniques with empty lists
-    valid_technique_count = len(valid_techniques)
-
-    # Return None if no technique has detection results
-    if valid_technique_count == 0:
-        return None
-
-    # Dynamically adjust weights: reallocate weights based on the number of valid techniques
-    adjusted_weights = {}
-    for technique, weight in base_weights.items():
-        if technique in valid_techniques:
-            adjusted_weights[technique] = weight / valid_technique_count  # Distribute evenly among valid techniques
-
-    # Count SWC codes to determine the final vulnerability
     swc_count = defaultdict(lambda: {'count': 0, 'techniques': []})
-
-    for technique, swcs in valid_techniques.items():
+    for technique, swcs in swc_codes_by_technique.items():
         for swc in swcs:
             swc_count[swc]['count'] += 1
             swc_count[swc]['techniques'].append(technique)
-
-    # Calculate scores for each vulnerability and select the final one
     best_swc = None
     best_score = -1
-
     for swc, data in swc_count.items():
-        score = sum(adjusted_weights[technique] for technique in data['techniques'])
-
-        # Add consistency filter: vulnerability confirmed by multiple techniques
-        if data['count'] >= 2:  # Confirmed by at least two techniques
-            score *= 1.5  # Give higher weight
-
+        score = sum(technique_weights.get(technique, 0.0) for technique in data['techniques'])
         if score > best_score:
             best_score = score
             best_swc = swc
-
     return best_swc
 
 

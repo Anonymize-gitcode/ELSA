@@ -43,8 +43,9 @@ def get_swc_codes_from_sol(sol_file):
 
 
 def select_final_vulnerability(swc_codes_by_technique):
-    """Select final vulnerability based on technique results"""
-    # Define weighted accuracy for techniques (comprehensive precision and recall)
+    """Unified with ZKP: final vulnerability = the SWC with the highest accumulated
+    technique weight (weighted argmax). No threshold, no consistency multiplier, no
+    dynamic weight normalization."""
     technique_weights = {
         'mythril': 0.1,  # Increase Mythril weight
         'slither': 0.1,  # Keep Slither weight unchanged
@@ -54,30 +55,18 @@ def select_final_vulnerability(swc_codes_by_technique):
         'oyente': 0.05,  # Slightly decrease Oyente weight
         'honeybadger': 0.2  # Keep Honeybadger weight unchanged
     }
-
-    # Count SWC codes to determine final vulnerability
     swc_count = defaultdict(lambda: {'count': 0, 'techniques': []})
-
     for technique, swcs in swc_codes_by_technique.items():
         for swc in swcs:
             swc_count[swc]['count'] += 1
             swc_count[swc]['techniques'].append(technique)
-
-    # Calculate score for each vulnerability and select the final one
     best_swc = None
     best_score = -1
-
     for swc, data in swc_count.items():
-        score = sum(technique_weights[technique] for technique in data['techniques'])
-
-        # Increase score for consistency: confirmed by multiple techniques
-        if data['count'] >= 1:  # At least one technique confirms
-            score *= 1.5  # Give higher weight
-
+        score = sum(technique_weights.get(technique, 0.0) for technique in data['techniques'])
         if score > best_score:
             best_score = score
             best_swc = swc
-
     return best_swc
 
 
