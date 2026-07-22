@@ -114,11 +114,11 @@ def save_results(sol_file, final_vulnerability, score, tool_results):
         content.append(
             f"- Mythril (Weight: 0.3): {', '.join(tool_results['mythril']) if tool_results['mythril'] else 'None'}")
         content.append(
-            f"- Slither (Weight: 0.5): {', '.join(tool_results['slither']) if tool_results['slither'] else 'None'}")
+            f"- Slither (Weight: 0.2): {', '.join(tool_results['slither']) if tool_results['slither'] else 'None'}")
         content.append(
-            f"- SmartCheck (Weight: 0.2): {', '.join(tool_results['smartcheck']) if tool_results['smartcheck'] else 'None'}")
+            f"- SmartCheck (Weight: 0.1): {', '.join(tool_results['smartcheck']) if tool_results['smartcheck'] else 'None'}")
 
-        content.append("\n> Note: 'No vulnerability detected' simply means the weighted threshold was not met, not that the contract is absolutely secure. It is recommended to combine manual audit.")
+        content.append("\n> Note: 'No vulnerability detected' simply means no technique reported a vulnerability (no weighted evidence to fuse; the final verdict is the highest accumulated-weight SWC, with no fixed threshold), not that the contract is absolutely secure. It is recommended to combine manual audit.")
 
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write('\n'.join(content))
