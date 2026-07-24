@@ -10,7 +10,7 @@ The authors of **ELSA (Ensemble LLM-assisted Static Analysis)** apply for the fo
 
 ## Why the Artifact Deserves the *Available* Badge
 
-The artifact is publicly and permanently archived on Zenodo (DOI: https://doi.org/10.5281/zenodo.21523694) with open access. It includes:
+The artifact is publicly and permanently archived on Zenodo (DOI: https://doi.org/10.5281/zenodo.21531483) with open access. It includes:
 
 * The complete ELSA source code and orchestration pipeline.
 * A self-contained Docker image, published on Docker Hub as `anonymizecode/elsa:latest` and also archived with the Zenodo record. The image bundles `solc`, Slither, Mythril, and SmartCheck for one-command execution.
