@@ -20,7 +20,7 @@ ELSA (Ensemble LLM-Assisted Static Analysis) is a neuro-symbolic approach for co
 
 ## Features
 
-- **Multi-technique Synergy**: Supports multiple static analysis techniques including Mythril, Slither, SmartCheck, Oyente, Securify, Manticore, Honeybadger, and Osiris
+- **Multi-technique Synergy**: Supports multiple static analysis techniques, including Mythril, Slither, SmartCheck, Oyente, Securify, Manticore, Honeybadger, and Osiris
 - **LLM Enhancement**: Leverages GPT-3.5-turbo and Deepseek models for semantic analysis
 - **Multiple Analysis Strategies**: 
   - One-Shot LLM-Assisted Analysis Strategy 
@@ -33,7 +33,7 @@ ELSA (Ensemble LLM-Assisted Static Analysis) is a neuro-symbolic approach for co
 
 ## Quick Start (Docker)
 
-For evaluation we provide a pre-built Docker image (about **1.4 GB** on disk; a few
+For evaluation, we provide a pre-built Docker image (about **1.4 GB** on disk; a few
 hundred MB compressed to download) that bundles the full runtime (Python 3.10, `solc`
 0.8.0, Slither, Mythril, SmartCheck, Node.js, Java) and the complete pipeline. This is
 the recommended way to reproduce results — no local technique installation is required.
@@ -46,7 +46,7 @@ docker pull anonymizecode/elsa:latest
 docker run --rm -e OPENAI_API_KEY="your-api-key-here" anonymizecode/elsa:latest
 ```
 
-Without an API key the pipeline still runs end-to-end (static analysis, filtering,
+Without an API key, the pipeline still runs end-to-end (static analysis, filtering,
 ensemble), but the LLM stages return no findings. Provide a key to get LLM-assisted
 verdicts.
 
@@ -72,7 +72,7 @@ written under `result/` inside the container; mount a host directory at
 
 The `smoke_test/` folder holds three small ZKP-based Solidity contracts
 (`withdraw.6186.sol`, `ZKPAudit.ab71.sol`, `ZKPChal_.3b83.sol`). They are the
-default input so a full run finishes in a few minutes while still exercising every
+default input, so a full run finishes in a few minutes while still exercising every
 pipeline stage. The complete category-balanced ZKP dataset (2,310 files) ships in
 `datasets/ZKP_dataset/`; to analyze more than the smoke set, mount a directory of
 `.sol` files at `/elsa/input_contracts` (see
@@ -137,8 +137,8 @@ docker run --rm --network host \
 ### Estimated cost
 
 The default smoke test issues a small number of short chat-completion calls (3
-contracts across the LLM stages). With `gpt-3.5-turbo` this costs well under
-US$0.05; with a free Groq endpoint or a local Ollama model it is free.
+contracts across the LLM stages). With `GPT-3.5-turbo`, this costs well under
+US$0.05; with a free Groq endpoint or a local Ollama model, it is free.
 
 ## System Requirements
 
