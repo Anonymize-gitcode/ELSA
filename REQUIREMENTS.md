@@ -1,7 +1,7 @@
 # REQUIREMENTS
 
 
-This document lists the hardware and software prerequisites for running **ELSA (Ensemble LLM-assisted Static Analysis)**. For step-by-step installation, configuration, and per-dataset details, see `README.md`. For the exact pinned Python dependencies, see `requirements.txt`.
+This document lists the hardware and software prerequisites for running **ELSA (Ensemble LLM-Assisted Static Analysis)**. For step-by-step installation, configuration, and per-dataset details, see `README.md`. For the exact pinned Python dependencies, see `requirements.txt`.
 
 
 ## 0. Recommended: Docker
