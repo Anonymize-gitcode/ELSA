@@ -1,4 +1,4 @@
-# ELSA: Ensemble LLM-assisted Static Analysis
+# Reproduction Package for ELSA: A Neuro-Symbolic Approach to Smart Contract Vulnerability Detection
 
 ELSA (Ensemble LLM-assisted Static Analysis) is a neuro-symbolic approach for comprehensive smart contracts vulnerability detection that synergizes multiple static analysis techniques enhanced by Large Language Models (LLMs). By leveraging the unique strengths of different static analyzers and the semantic reasoning of LLMs, ELSA significantly improves the effectiveness and performance of vulnerability detection in Solidity smart contracts.
 
