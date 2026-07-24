@@ -2,7 +2,7 @@
 
 ## Badges Requested
 
-The authors of **ELSA (Ensemble LLM-assisted Static Analysis)** apply for the following artifact-evaluation badges:
+The authors of **ELSA (Ensemble LLM-Assisted Static Analysis)** apply for the following artifact-evaluation badges:
 
 * **Artifacts Available**
 * **Artifacts Evaluated - Functional**
